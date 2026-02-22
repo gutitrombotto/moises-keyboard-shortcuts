@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Moises Keyboard Shortcuts",
   "version": "1.0",
-  "description": "Keyboard shortcuts for Moises.ai stem player — press V to toggle Vocals mute",
+  "description": "Keyboard shortcuts for Moises.ai stem player — mute/solo any track with a single keypress",
   "icons": {
     "128": "icons/icon128.png"
   },

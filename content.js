@@ -68,16 +68,14 @@
   function findTrackContainer(textNode) {
     let el = textNode.parentElement;
     for (let i = 0; i < 15 && el; i++) {
-      if (el.className && el.className.includes && el.className.includes('container')) {
-        const buttons = el.querySelectorAll('button');
-        let hasMute = false;
-        let hasSolo = false;
-        for (const btn of buttons) {
-          if (btn.className.includes('buttonMute')) hasMute = true;
-          if (btn.className.includes('buttonSolo')) hasSolo = true;
-        }
-        if (hasMute && hasSolo) return el;
+      const buttons = el.querySelectorAll('button');
+      let hasMute = false;
+      let hasSolo = false;
+      for (const btn of buttons) {
+        if (btn.className.includes('buttonMute')) hasMute = true;
+        if (btn.className.includes('buttonSolo')) hasSolo = true;
       }
+      if (hasMute && hasSolo) return el;
       el = el.parentElement;
     }
     return null;
@@ -91,12 +89,23 @@
     return null;
   }
 
-  // --- Core toggle with retry ---
+  // --- Retry helper ---
 
-  function toggleTrackAction(trackName, action, attempt) {
-    attempt = attempt || 1;
-    const maxAttempts = 3;
-    const classPattern = ACTION_CLASS_PATTERNS[action];
+  function retryUntil(fn, attempts, delay) {
+    return new Promise(function (resolve) {
+      function tryOnce(n) {
+        var result = fn();
+        if (result || n >= attempts) return resolve(result);
+        setTimeout(function () { tryOnce(n + 1); }, delay);
+      }
+      tryOnce(1);
+    });
+  }
+
+  // --- Core toggle ---
+
+  async function toggleTrackAction(trackName, action) {
+    var classPattern = ACTION_CLASS_PATTERNS[action];
 
     if (!classPattern) {
       logError('Unknown action:', action);
@@ -104,43 +113,22 @@
       return;
     }
 
-    const textNode = findTrackTextNode(trackName);
+    var textNode = await retryUntil(function () { return findTrackTextNode(trackName); }, 3, 100);
     if (!textNode) {
-      if (attempt < maxAttempts) {
-        log('Track "' + trackName + '" not found, retrying (' + attempt + '/' + maxAttempts + ')...');
-        setTimeout(function () {
-          toggleTrackAction(trackName, action, attempt + 1);
-        }, 100);
-        return;
-      }
-      logError('Track "' + trackName + '" not found after ' + maxAttempts + ' attempts');
+      logError('Track "' + trackName + '" not found after retries');
       showToast(trackName + ' track not found', true);
       return;
     }
 
-    const container = findTrackContainer(textNode);
+    var container = await retryUntil(function () { return findTrackContainer(textNode); }, 3, 100);
     if (!container) {
-      if (attempt < maxAttempts) {
-        log('Container for "' + trackName + '" not found, retrying (' + attempt + '/' + maxAttempts + ')...');
-        setTimeout(function () {
-          toggleTrackAction(trackName, action, attempt + 1);
-        }, 100);
-        return;
-      }
       logError('Could not find track container for "' + trackName + '"');
       showToast(trackName + ' container not found', true);
       return;
     }
 
-    const btn = findActionButton(container, classPattern);
+    var btn = await retryUntil(function () { return findActionButton(container, classPattern); }, 3, 100);
     if (!btn) {
-      if (attempt < maxAttempts) {
-        log(action + ' button not found, retrying (' + attempt + '/' + maxAttempts + ')...');
-        setTimeout(function () {
-          toggleTrackAction(trackName, action, attempt + 1);
-        }, 100);
-        return;
-      }
       logError(action + ' button not found in "' + trackName + '" container');
       showToast(trackName + ' ' + action + ' button not found', true);
       return;
@@ -162,12 +150,19 @@
     return false;
   }
 
+  const lastTrigger = {};
+
   document.addEventListener('keydown', function (e) {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (shouldIgnoreKeypress()) return;
 
     const shortcut = SHORTCUTS[e.key];
     if (!shortcut) return;
+
+    const triggerKey = shortcut.track + ':' + shortcut.action;
+    const now = Date.now();
+    if (lastTrigger[triggerKey] && now - lastTrigger[triggerKey] < 300) return;
+    lastTrigger[triggerKey] = now;
 
     e.preventDefault();
     log('Shortcut "' + e.key + '" -> ' + shortcut.track + ' ' + shortcut.action);
