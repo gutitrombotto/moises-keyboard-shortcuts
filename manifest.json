@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Moises Keyboard Shortcuts",
-  "version": "1.2",
+  "version": "1.3",
   "description": "Keyboard shortcuts for Moises.ai stem player — mute/solo any track with a single keypress",
   "icons": {
     "128": "icons/icon128.png"

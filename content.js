@@ -175,4 +175,48 @@
   });
 
   log('Extension loaded, shortcuts active');
+
+  // --- Opt-in feedback link ---
+
+  function showFeedbackLink() {
+    if (typeof FEEDBACK_URL !== 'string' || !FEEDBACK_URL || FEEDBACK_URL === 'PASTE_FEEDBACK_URL_HERE') return;
+    try { if (localStorage.getItem('moises-kb-feedback-dismissed')) return; } catch (e) {}
+    if (document.getElementById('moises-kb-feedback')) return;
+
+    const wrap = document.createElement('div');
+    wrap.id = 'moises-kb-feedback';
+    Object.assign(wrap.style, {
+      position: 'fixed', bottom: '16px', left: '16px', zIndex: '999999',
+      display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px',
+      borderRadius: '8px', background: 'rgba(30,30,30,0.9)', color: '#eee',
+      fontSize: '12px', fontFamily: 'system-ui, sans-serif',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.3)', opacity: '0',
+      transition: 'opacity 0.3s ease',
+    });
+
+    const link = document.createElement('a');
+    link.textContent = '⌨️ Shortcuts feedback';
+    link.href = FEEDBACK_URL;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    Object.assign(link.style, { color: '#8ab4ff', textDecoration: 'none' });
+
+    const close = document.createElement('span');
+    close.textContent = '✕';
+    close.title = 'Dismiss';
+    Object.assign(close.style, { cursor: 'pointer', opacity: '0.7' });
+    close.addEventListener('click', function () {
+      try { localStorage.setItem('moises-kb-feedback-dismissed', '1'); } catch (e) {}
+      wrap.remove();
+    });
+
+    wrap.appendChild(link);
+    wrap.appendChild(close);
+    document.body.appendChild(wrap);
+    requestAnimationFrame(function () { wrap.style.opacity = '1'; });
+  }
+
+  // Only surface it in the frame that actually holds the player controls.
+  retryUntil(function () { return document.querySelector('[class*="buttonMute"]'); }, 10, 500)
+    .then(function (found) { if (found) showFeedbackLink(); });
 })();

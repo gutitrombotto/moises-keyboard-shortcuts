@@ -13,3 +13,7 @@ const ACTION_CLASS_PATTERNS = {
   'mute': 'buttonMute',
   'solo': 'buttonSolo',
 };
+
+// Opt-in feedback link shown once (dismissible) in the player.
+// Paste your Google Form URL (or a mailto: address). Leave '' to disable.
+const FEEDBACK_URL = 'https://forms.gle/rcxd1vMkeJ7VDuE97';
