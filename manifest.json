@@ -1,19 +1,21 @@
 {
   "manifest_version": 3,
   "name": "Moises Keyboard Shortcuts",
-  "version": "1.1",
+  "version": "1.2",
   "description": "Keyboard shortcuts for Moises.ai stem player — mute/solo any track with a single keypress",
   "icons": {
     "128": "icons/icon128.png"
   },
   "host_permissions": [
-    "https://studio.moises.ai/*"
+    "https://studio.moises.ai/*",
+    "https://studio1.moises.ai/*"
   ],
   "content_scripts": [
     {
-      "matches": ["https://studio.moises.ai/*"],
+      "matches": ["https://studio.moises.ai/*", "https://studio1.moises.ai/*"],
       "js": ["config.js", "content.js"],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "all_frames": true
     }
   ]
 }

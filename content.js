@@ -159,6 +159,11 @@
     const shortcut = SHORTCUTS[e.key];
     if (!shortcut) return;
 
+    // The player runs inside a studio1.moises.ai iframe; with all_frames the
+    // script also loads in the shell frame. Stay inert where there are no
+    // track controls so the shell doesn't emit "track not found" toasts.
+    if (!document.querySelector('[class*="buttonMute"]')) return;
+
     const triggerKey = shortcut.track + ':' + shortcut.action;
     const now = Date.now();
     if (lastTrigger[triggerKey] && now - lastTrigger[triggerKey] < 300) return;
