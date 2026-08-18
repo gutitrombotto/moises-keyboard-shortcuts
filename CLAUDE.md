@@ -1,39 +1,29 @@
-# CLAUDE.md
+# Moises Keyboard Shortcuts — notas para Claude Code
 
-Chrome extension that adds keyboard shortcuts to Moises.ai's stem player (studio.moises.ai/player2) for muting and soloing tracks without mouse clicks.
+Extensión de Chrome (MV3, WXT + TypeScript, sin UI propia) publicada en el Chrome Web
+Store como **Moises Keyboard Shortcuts** (ítem `oednmjhdohclojfahpjabgjmmegojbef`).
+Agrega atajos de teclado para mutear/solear pistas en el stem player de Moises.ai.
 
-## File structure
+## Chrome Web Store
 
-- `manifest.json` — Manifest V3 config. Content script injected on `studio.moises.ai/*` and `studio1.moises.ai/*` at `document_idle`, with `all_frames: true`. No popup or background worker.
-- `config.js` — Shortcut mappings (`SHORTCUTS`) and button class patterns (`ACTION_CLASS_PATTERNS`). Loaded before content.js.
-- `content.js` — Keyboard listener, DOM finders, retry logic, and toast notifications. Wrapped in an IIFE.
-- `icons/icon128.png` — Extension icon (128x128 PNG).
+- Para **auditar el estado del store** (versión publicada vs local, borrador, listing,
+  privacidad) o **publicar una versión nueva**, usá la skill del repo: `/store-check`
+  (`.claude/skills/store-check/SKILL.md`). Ahí están el protocolo completo, las
+  constantes y las reglas duras (p. ej. "Enviar a revisión" siempre requiere
+  confirmación explícita del usuario).
+- El dashboard del CWS se opera con el servidor MCP `cws-browser` (definido en
+  `.mcp.json`), que usa un perfil de browser persistente en
+  `~/.local/share/moises-kbd/cws-profile` con la sesión de Google del store
+  (gutitrombotto@gmail.com). No usar otros perfiles de Playwright para esto.
+- Las fuentes de verdad del listing viven en `store-assets/` — el dashboard debe
+  reflejarlas, nunca al revés.
 
-## Key technical details
+## Referencias del repo
 
-- **Iframe architecture**: The actual stem player is served inside a **cross-origin iframe on `studio1.moises.ai`** (`player2/<id>/?shellDisabled=true`); the `studio.moises.ai` page is just a shell wrapper. This is why the manifest matches both origins and sets `all_frames: true` — the content script must run _inside_ the iframe where the track controls and keyboard focus live. A top-frame-only injection sees nothing. (There are also unrelated `bling-bling.moises.ai` ad/paywall iframes on the shell page.)
-- **Frame-inert guard**: With `all_frames`, the script also loads in the shell frame. The keydown handler bails early (`document.querySelector('[class*="buttonMute"]')`) when a frame has no track controls, so the shell doesn't emit false "track not found" toasts.
-- **Button detection**: Moises uses SVG icons inside buttons, not text. Buttons are identified by CSS class substrings: `buttonMute` for mute, `buttonSolo` for solo. Class names have hashed suffixes (e.g. `controls_buttonMute__HNRvx`) so we match the stable prefix. Note: a "Smart Metronome" row shares these control classes but is matched away by track name.
-- **Track detection**: Uses a `TreeWalker` to find a text node matching the track name (e.g. "Vocals"), then walks up the DOM to find the nearest container that has both a mute and solo button.
-- **Retry logic**: A `retryUntil(fn, attempts, delay)` helper retries DOM lookups up to 3 times with 100ms delay to handle late-loading elements.
-- **Debounce**: Rapid keypresses on the same track+action are ignored if within 300ms of the last trigger, preventing mute/unmute flicker.
-- **Input safety**: Shortcuts are ignored when focus is on INPUT/TEXTAREA/SELECT/contentEditable elements, or when Ctrl/Cmd/Alt modifiers are held.
-
-## How to test
-
-1. `chrome://extensions/` > Developer mode > Load unpacked > select this folder
-2. Open a song on `studio.moises.ai/player2/...`
-3. Press v (Vocals), d (Drums), b (Bass), o (Other) to toggle mute
-4. Press Shift+V (Vocals), Shift+D (Drums), Shift+B (Bass), Shift+O (Other) to toggle solo
-5. Check DevTools console for `[Moises Keyboard]` log messages
-
-## How to extend
-
-Add entries to `SHORTCUTS` in `config.js`:
-
-```js
-'x': { track: 'Piano', action: 'mute' },   // x for Piano mute
-'X': { track: 'Piano', action: 'solo' },    // Shift+X for Piano solo
-```
-
-Supported actions: `mute`, `solo` (mapped to class patterns in `ACTION_CLASS_PATTERNS`).
+- `SPECS.md` — especificación del producto (arquitectura de iframe, detección DOM,
+  modelo de teclado, taxonomía de toasts); `ROADMAP.md` — estado y plan por fases.
+- `store-assets/SUBMISSION_CHECKLIST.md` — checklist de publicación en el CWS.
+- Convenciones de código en `CODESTYLE.md`. Lint: `pnpm lint`; tests: `pnpm test`;
+  build/paquete del store: `pnpm zip` (deja el ZIP en `.output/`).
+- Los archivos legacy de v1.3 (`manifest.json`, `config.js`, `content.js`, `docs/`,
+  `scripts/`) quedan hasta cerrar la validación manual de ROADMAP §M5 — no tocarlos.
