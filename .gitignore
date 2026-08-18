@@ -4,3 +4,9 @@
 *.zip
 build/
 node_modules/
+.output/
+.wxt/
+.env
+.env.*
+web-ext.config.ts
+.playwright-mcp/

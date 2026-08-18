@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Moises Keyboard Shortcuts",
+    "description": "Extension name shown in Chrome and as the Web Store listing title. Kept in English: the brand and the feature name are what users type in the store search."
+  },
+  "extDescription": {
+    "message": "Atajos de teclado para el stem player de Moises.ai — muteá o poné en solo cualquier pista con una sola tecla",
+    "description": "Manifest description. Doubles as the Web Store listing summary; max 132 characters."
+  }
+}

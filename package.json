@@ -1,0 +1,37 @@
+{
+  "name": "moises-keyboard-shortcuts",
+  "description": "Keyboard shortcuts for Moises.ai stem player — mute/solo any track with a single keypress",
+  "private": true,
+  "version": "1.4.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "zip": "wxt zip",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0 && prettier --check .",
+    "format": "prettier --write .",
+    "test": "vitest run --passWithNoTests",
+    "postinstall": "wxt prepare",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.280",
+    "eslint": "^9.15.0",
+    "happy-dom": "^20.11.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.15.0",
+    "vitest": "^2.1.5",
+    "wxt": "^0.20.0"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix --max-warnings 0",
+      "prettier --write"
+    ],
+    "*.{md,json,css,html,yml,yaml}": "prettier --write"
+  }
+}

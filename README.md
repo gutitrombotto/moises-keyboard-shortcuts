@@ -6,21 +6,21 @@ A Chrome extension that adds keyboard shortcuts to [Moises.ai](https://studio.mo
 
 ### Mute
 
-| Key | Track |
-|-----|-------|
+| Key | Track  |
+| --- | ------ |
 | `v` | Vocals |
-| `d` | Drums |
-| `b` | Bass |
-| `o` | Other |
+| `d` | Drums  |
+| `b` | Bass   |
+| `o` | Other  |
 
 ### Solo
 
-| Key | Track |
-|-----|-------|
+| Key           | Track  |
+| ------------- | ------ |
 | `Shift` + `V` | Vocals |
-| `Shift` + `D` | Drums |
-| `Shift` + `B` | Bass |
-| `Shift` + `O` | Other |
+| `Shift` + `D` | Drums  |
+| `Shift` + `B` | Bass   |
+| `Shift` + `O` | Other  |
 
 > Shortcuts are disabled when typing in text fields or when modifier keys (`Ctrl` / `Cmd` / `Alt`) are held.
 
@@ -28,7 +28,7 @@ A Chrome extension that adds keyboard shortcuts to [Moises.ai](https://studio.mo
 
 ### From the Chrome Web Store
 
-*Coming soon* — the extension is currently pending review.
+_Coming soon_ — the extension is currently pending review.
 
 ### Manual (developer mode)
 
@@ -45,18 +45,18 @@ Edit `config.js` to add new mappings:
 ```js
 const SHORTCUTS = {
   // Mute (lowercase)
-  'v': { track: 'Vocals', action: 'mute' },
-  'd': { track: 'Drums', action: 'mute' },
-  'b': { track: 'Bass', action: 'mute' },
-  'o': { track: 'Other', action: 'mute' },
-  'x': { track: 'Piano', action: 'mute' },   // add your own
+  v: { track: 'Vocals', action: 'mute' },
+  d: { track: 'Drums', action: 'mute' },
+  b: { track: 'Bass', action: 'mute' },
+  o: { track: 'Other', action: 'mute' },
+  x: { track: 'Piano', action: 'mute' }, // add your own
 
   // Solo (Shift = uppercase)
-  'V': { track: 'Vocals', action: 'solo' },
-  'D': { track: 'Drums', action: 'solo' },
-  'B': { track: 'Bass', action: 'solo' },
-  'O': { track: 'Other', action: 'solo' },
-  'X': { track: 'Piano', action: 'solo' },   // add your own
+  V: { track: 'Vocals', action: 'solo' },
+  D: { track: 'Drums', action: 'solo' },
+  B: { track: 'Bass', action: 'solo' },
+  O: { track: 'Other', action: 'solo' },
+  X: { track: 'Piano', action: 'solo' }, // add your own
 };
 ```
 

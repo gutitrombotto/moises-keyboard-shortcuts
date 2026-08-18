@@ -1,0 +1,10 @@
+pnpm-lock.yaml
+.wxt/
+.output/
+
+# Legacy v1.3 files, removed after the migrated version is validated by hand.
+content.js
+config.js
+manifest.json
+docs/
+scripts/
