@@ -30,14 +30,21 @@ On a real song at `studio.moises.ai/player2/...` with the unpacked v1.4.0 build:
 
 **Done when:** every row passes → remove `manifest.json`, `config.js`, `content.js`, `docs/`, `scripts/package.sh` in a dedicated commit (decide the privacy-policy hosting first — the live listing links `docs/privacy.html` via a GitHub Pages URL that is currently broken).
 
-## M6 — Publish v1.4.0
+## M6 — Popup + toast redesign (validation matrix)
+
+On a real song with the unpacked v1.5.0 build, in addition to the M5 matrix:
+
+- Popup: opens on icon click, shows green status on a player tab and gray + open-player link elsewhere; keycaps and colors render; feedback link opens the form; ES locale shows Spanish copy (`chrome://settings/languages`).
+- Toasts: mute shows the red MUTE chip when muting and the struck-through chip when unmuting (if the player exposes `aria-pressed`; otherwise the neutral chip is expected); solo shows the green SOLO chip; errors show the ✕ variant.
+
+## M7 — Publish v1.5.0
 
 - Resolve the privacy policy URL (repo public + Pages, or external hosting) and the "Open source" claim in the listing (the linked repo is private).
 - `pnpm zip` → upload via `/store-check` Phase 3; listing copy from `store-assets/listing/`, screenshots from `store-assets/screenshots/`.
 - The uploaded package's `_locales` unlock the ES listing language in the dashboard (the current listing shows "Spanish (Latin America)" as its language while its copy is English — normalize: EN listing + ES listing, each from its own `.md`).
-- **Done when:** item back to "Published" with 1.4.0 and both listing languages populated.
+- **Done when:** item back to "Published" with 1.5.0 and both listing languages populated.
 
-## Post-v1.4 (backlog)
+## Post-v1.5 (backlog)
 
 - **Configurable shortcuts**: options page to remap keys and add tracks without editing code. First real UI — adopts React + `storage` permission; revisit SPECS §2 stack table when it lands.
 - **Dynamic track support**: detect whatever stems the current separation actually has (Piano, Guitar, 5+ stem plans) instead of the fixed four.

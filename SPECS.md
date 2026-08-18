@@ -8,7 +8,7 @@ Moises Keyboard Shortcuts is a B2C Chrome extension (Manifest V3) that adds keyb
 
 **Value proposition:**
 
-- **Zero friction**: no popup, no options page, no account. Install it, open a song, press a key.
+- **Zero friction**: no account, no setup. Install it, open a song, press a key — the toolbar popup is just a cheat-sheet (§7.1).
 - **Privacy-absolute**: no data collected, and the extension performs **zero network requests**. It is a content script that reads and clicks the page it runs on, nothing else.
 
 **Supported platform (v1.5):** Chrome desktop. The extension runs only on `studio.moises.ai` and `studio1.moises.ai`.
@@ -62,6 +62,8 @@ moises-keyboard-shortcuts/
     ├── dom/
     │   └── fixtures/                # player.html (studio1 frame) + shell.html replicas
     ├── keyboard/
+    ├── toast/
+    ├── urls/
     ├── debounce/
     └── retry/
 ```
