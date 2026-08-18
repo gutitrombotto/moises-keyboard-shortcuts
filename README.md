@@ -15,7 +15,9 @@ When you're practicing with an instrument in your hands, reaching for the mouse 
 | `b` | Bass   | mute   | `Shift` + `B` | solo   |
 | `o` | Other  | mute   | `Shift` + `O` | solo   |
 
-A small toast confirms every action. Shortcuts are disabled while typing in text fields, and modifier combinations (`Ctrl`/`Cmd`/`Alt` + key) pass through untouched — `Ctrl+V` keeps pasting.
+A small toast confirms every action — with the track's color and whether the toggle turned mute/solo on or off. Shortcuts are disabled while typing in text fields, and modifier combinations (`Ctrl`/`Cmd`/`Alt` + key) pass through untouched — `Ctrl+V` keeps pasting.
+
+Clicking the toolbar icon opens a **cheat-sheet popup** with every shortcut, whether the extension is active on the current tab, and a quick link to open the player.
 
 ## Install
 

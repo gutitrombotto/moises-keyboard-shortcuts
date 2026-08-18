@@ -1,4 +1,4 @@
-import { ACTION_CLASS_PATTERNS } from '@/lib/config';
+import { ACTION_CLASS_PATTERNS, type ToggleState } from '@/lib/config';
 
 // Walking more levels than the track-row depth would let two rows share a
 // "container" (e.g. the whole track list), so the climb is bounded.
@@ -58,4 +58,18 @@ export function findActionButton(container: HTMLElement, classPattern: string): 
     }
   }
   return null;
+}
+
+// Read BEFORE clicking: the click flips aria-pressed, and reading afterwards
+// would race the player's re-render. The result is the state the click will
+// produce; buttons without aria-pressed yield 'unknown'.
+export function nextToggleState(button: HTMLButtonElement): ToggleState {
+  const pressed = button.getAttribute('aria-pressed');
+  if (pressed === 'true') {
+    return 'off';
+  }
+  if (pressed === 'false') {
+    return 'on';
+  }
+  return 'unknown';
 }

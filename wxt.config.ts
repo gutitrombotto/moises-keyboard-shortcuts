@@ -10,5 +10,8 @@ export default defineConfig({
     name: '__MSG_extName__',
     description: '__MSG_extDescription__',
     host_permissions: ['https://studio.moises.ai/*', 'https://studio1.moises.ai/*'],
+    action: {
+      default_title: '__MSG_extName__',
+    },
   },
 });
