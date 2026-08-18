@@ -6,5 +6,41 @@
   "extDescription": {
     "message": "Atajos de teclado para el stem player de Moises.ai — muteá o poné en solo cualquier pista con una sola tecla",
     "description": "Manifest description. Doubles as the Web Store listing summary; max 132 characters."
+  },
+  "popupStatusActive": {
+    "message": "Activa en este player — tocá una tecla",
+    "description": "Popup status when the active tab is the Moises player."
+  },
+  "popupStatusWaiting": {
+    "message": "Esperando el player —",
+    "description": "Popup status when the active tab is not the Moises player; followed by the open-player link."
+  },
+  "popupOpenPlayer": {
+    "message": "abrir studio.moises.ai ↗",
+    "description": "Link that opens the Moises player in a new tab."
+  },
+  "popupHintTyping": {
+    "message": "Los atajos se pausan mientras escribís en un campo de texto.",
+    "description": "Input-safety hint, first sentence."
+  },
+  "popupHintPasteSuffix": {
+    "message": "sigue pegando normal.",
+    "description": "Input-safety hint, rendered after the Ctrl+V keycaps."
+  },
+  "popupMute": {
+    "message": "mute",
+    "description": "Action label in the shortcut rows."
+  },
+  "popupSolo": {
+    "message": "solo",
+    "description": "Action label in the shortcut rows."
+  },
+  "popupFeedback": {
+    "message": "Feedback ↗",
+    "description": "Footer link to the feedback form."
+  },
+  "popupPrivacy": {
+    "message": "0 datos · 0 requests",
+    "description": "Footer privacy microcopy."
   }
 }

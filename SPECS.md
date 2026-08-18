@@ -11,7 +11,7 @@ Moises Keyboard Shortcuts is a B2C Chrome extension (Manifest V3) that adds keyb
 - **Zero friction**: no popup, no options page, no account. Install it, open a song, press a key.
 - **Privacy-absolute**: no data collected, and the extension performs **zero network requests**. It is a content script that reads and clicks the page it runs on, nothing else.
 
-**Supported platform (v1.4):** Chrome desktop. The extension runs only on `studio.moises.ai` and `studio1.moises.ai`.
+**Supported platform (v1.5):** Chrome desktop. The extension runs only on `studio.moises.ai` and `studio1.moises.ai`.
 
 **Repository:** private, `github.com/gutitrombotto/moises-keyboard-shortcuts`. Workflow: **PR-based with `main`** — CI (lint + typecheck + test + build) must pass before merge. Details in `CODESTYLE.md` §Git.
 
@@ -19,15 +19,15 @@ Moises Keyboard Shortcuts is a B2C Chrome extension (Manifest V3) that adds keyb
 
 ## 2. Tech Stack
 
-| Layer               | Choice                  | Rationale                                                                  |
-| ------------------- | ----------------------- | -------------------------------------------------------------------------- |
-| Extension framework | **WXT**                 | Best-maintained MV3 framework: manifest generation, HMR, store packaging   |
-| Language            | **TypeScript (strict)** | The DOM-detection contracts are the core of the product                    |
-| UI                  | **None**                | No popup/options/background; the toast and feedback link are built in-page |
-| Persistence         | **None**                | The only stored byte is a `localStorage` feedback-link dismissal flag      |
-| Testing             | **Vitest + happy-dom**  | DOM finders are tested against saved replicas of the real player DOM       |
+| Layer               | Choice                       | Rationale                                                                |
+| ------------------- | ---------------------------- | ------------------------------------------------------------------------ |
+| Extension framework | **WXT**                      | Best-maintained MV3 framework: manifest generation, HMR, store packaging |
+| Language            | **TypeScript (strict)**      | The DOM-detection contracts are the core of the product                  |
+| UI                  | **Popup (vanilla TS + CSS)** | A static cheat-sheet popup (§7); toasts and feedback link are in-page    |
+| Persistence         | **None**                     | The only stored byte is a `localStorage` feedback-link dismissal flag    |
+| Testing             | **Vitest + happy-dom**       | DOM finders are tested against saved replicas of the real player DOM     |
 
-No React, Tailwind, or state library: there is no UI surface to justify them. If a real UI appears (e.g. a shortcut-configuration options page, see ROADMAP), it adopts Cartly's React stack.
+No React, Tailwind, or state library: a static cheat-sheet does not justify them. If interactive UI appears (e.g. a shortcut-configuration options page, see ROADMAP), it adopts Cartly's React stack.
 
 ### 2.1 Project structure
 
@@ -45,11 +45,13 @@ moises-keyboard-shortcuts/
 │   └── _locales/{en,es}/messages.json
 ├── src/
 │   ├── entrypoints/
-│   │   └── content.ts               # keydown orchestration; composes lib modules
+│   │   ├── content.ts               # keydown orchestration; composes lib modules
+│   │   └── popup/                   # §7 cheat-sheet popup (index.html + main.ts + style.css)
 │   └── lib/
-│       ├── config/index.ts          # SHORTCUTS, ACTION_CLASS_PATTERNS, timing constants
+│       ├── config/index.ts          # SHORTCUTS, ACTION_CLASS_PATTERNS, TRACK_COLORS, timing
 │       ├── keyboard/index.ts        # §5: shortcut resolution + input safety (pure)
-│       ├── dom-finder/index.ts      # §4: track/button detection + frame guard (pure DOM)
+│       ├── dom-finder/index.ts      # §4: track/button detection, toggle state, frame guard
+│       ├── urls/index.ts            # player-origin matching for the popup status
 │       ├── retry/index.ts           # retryUntil helper
 │       ├── debounce/index.ts        # per-key trigger gate
 │       ├── toast/index.ts           # §7 in-page notifications
@@ -73,7 +75,7 @@ Legacy v1.3 files (`manifest.json`, `config.js`, `content.js`, `docs/`, `scripts
 - `content_scripts`: one script, `matches: ["https://studio.moises.ai/*", "https://studio1.moises.ai/*"]`, `run_at: document_idle`, `all_frames: true`.
 - `host_permissions`: the same two origins — the extension's entire access surface.
 - `default_locale: en`; `name`/`description` localized via `public/_locales` (en, es).
-- No `permissions`, no background service worker, no action popup.
+- `action`: opens the cheat-sheet popup (§7). No `permissions`, no background service worker — the popup's tab check rides on the host permissions (tab URLs are only readable where host access exists, which is exactly the "am I on the player" question).
 
 ### 3.2 Iframe architecture (why `all_frames`)
 
@@ -132,33 +134,43 @@ Adding a shortcut is a config-only change: a new entry in `SHORTCUTS` (`config/i
 - **BR-4 — Every failure is visible**: any lookup miss after retries produces an error toast naming the track and stage (§9), never a silent no-op — a musician mid-practice must know the keypress did nothing.
 - **BR-5 — Zero network**: the extension performs no fetch/XHR/beacon of any kind. The feedback link (§7) only opens a URL in a new tab when clicked.
 
-## 7. In-Page UI
+## 7. UI Surfaces
 
-No extension pages; both surfaces are injected into the player frame:
+### 7.1 Popup (cheat-sheet)
 
-- **Toast** — fixed top-right notification, auto-dismissed after 1.5 s (0.3 s fade). Dark for confirmations ("Vocals mute toggled"), red for errors (§9). One toast at a time; a new one replaces the current.
-- **Feedback link** — opt-in, dismissible "⌨️ Shortcuts feedback" pill (bottom-left) linking to a Google Form. Shown only in the frame with track controls, once the player has mounted (probe: 10 × 500 ms). Dismissal persists in `localStorage` (`moises-kb-feedback-dismissed`); storage failures in sandboxed frames fail open. Disabled by setting `FEEDBACK_URL` to `''`.
+Clicking the toolbar icon opens a 320 px static popup (vanilla TS, no framework):
+
+- **Header**: logo, name, version (from the manifest).
+- **Contextual status**: green "active on this player" when the focused tab's URL matches a player origin (`lib/urls`), gray "waiting" with an open-the-player link otherwise (cheat-sheet dimmed). The check needs no extra permissions (§3.1).
+- **Cheat-sheet**: one row per track, rendered from the real `SHORTCUTS` — keycap (displayed uppercase), track color dot (`TRACK_COLORS`, gray fallback), and the `⇧+key` solo variant. Config-only track additions appear automatically.
+- **Input-safety hint** and a footer with the feedback link (`FEEDBACK_URL`) plus the "0 data · 0 requests" microcopy.
+- All popup copy is localized via `_locales` (§8).
+
+### 7.2 In-page surfaces (player frame)
+
+- **Toast** — fixed top-right, auto-dismissed after 1.5 s (0.3 s fade), one at a time (a new one replaces the current). Success toasts show a track-colored accent bar, the track name, and an action chip: filled red `MUTE` / filled green `SOLO` when the toggle turned the action **on**, dimmed struck-through when it turned it **off**, dimmed plain when the resulting state is unknown. The state is predicted from the button's `aria-pressed` read **before** clicking (`nextToggleState`); buttons without it fall back to the neutral chip. Error toasts show a red ✕ icon, red-tinted text and border (§9).
+- **Feedback link** — opt-in, dismissible "⌨️ Shortcuts feedback" pill (bottom-left, rounded, blurred backdrop) linking to a Google Form. Shown only in the frame with track controls, once the player has mounted (probe: 10 × 500 ms). Dismissal persists in `localStorage` (`moises-kb-feedback-dismissed`); storage failures in sandboxed frames fail open. Disabled by setting `FEEDBACK_URL` to `''`.
 - **Console log** — every action and failure is logged with the `[Moises Keyboard]` prefix; this is the only diagnostic surface.
 
 ## 8. Localization
 
-Manifest name/description come from `public/_locales/{en,es}/messages.json` (`default_locale: en`). The extension name stays untranslated in both locales — the brand is what users search. In-page strings (toasts, feedback link) are English-only in v1.4: they are 3-word status confirmations, not UI copy worth a strings module yet.
+Manifest name/description and all popup strings come from `public/_locales/{en,es}/messages.json` (`default_locale: en`). The extension name stays untranslated in both locales — the brand is what users search. In-page strings (toasts) are English-only: they are the track/action names themselves, not UI copy worth translating.
 
 ## 9. Error / Toast Taxonomy
 
-Every failure path is a logged error plus a red toast; there are no typed exceptions because no failure crosses a module boundary — each miss resolves `null` and is surfaced at the orchestration layer (`content.ts`).
+Every failure path is a logged error plus an error toast; there are no typed exceptions because no failure crosses a module boundary — each miss resolves `null` and is surfaced at the orchestration layer (`content.ts`).
 
-| Failure                              | Detected by                 | Console (`[Moises Keyboard]`)                      | Toast (red)                         |
+| Failure                              | Detected by                 | Console (`[Moises Keyboard]`)                      | Error toast (✕, red)                |
 | ------------------------------------ | --------------------------- | -------------------------------------------------- | ----------------------------------- |
 | Track label absent after retries     | `findTrackTextNode` → null  | `Track "<track>" not found after retries`          | `<track> track not found`           |
 | No ancestor with mute+solo buttons   | `findTrackContainer` → null | `Could not find track container for "<track>"`     | `<track> container not found`       |
 | Button class pattern matches nothing | `findActionButton` → null   | `<action> button not found in "<track>" container` | `<track> <action> button not found` |
 
-Success path: console `<track> <action> toggled` + dark toast with the same text.
+Success path: console `<track> <action> toggled` + action toast per §7.2 (track name + state chip).
 
 A "track not found" toast on a real player frame is the product's breakage signal: it means Moises renamed a track label or rehashed beyond the class prefixes (§4), and `ACTION_CLASS_PATTERNS`/fixtures need updating.
 
-## 10. Out of Scope (v1.4) / Deferred
+## 10. Out of Scope (v1.5) / Deferred
 
 - Configurable shortcuts (options page UI) — would introduce the React stack and `storage` permission.
 - Dynamic track discovery (Piano, Guitar, multi-stem separations) beyond config-file edits.

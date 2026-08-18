@@ -6,12 +6,18 @@ import {
   type TrackAction,
 } from '@/lib/config';
 import { createTriggerDebouncer } from '@/lib/debounce';
-import { findActionButton, findTrackContainer, findTrackTextNode, hasTrackControls } from '@/lib/dom-finder';
+import {
+  findActionButton,
+  findTrackContainer,
+  findTrackTextNode,
+  hasTrackControls,
+  nextToggleState,
+} from '@/lib/dom-finder';
 import { surfaceFeedbackLink } from '@/lib/feedback';
 import { resolveShortcut, shouldIgnoreKeypress } from '@/lib/keyboard';
 import { log, logError } from '@/lib/logger';
 import { retryUntil } from '@/lib/retry';
-import { showToast } from '@/lib/toast';
+import { showActionToast, showErrorToast } from '@/lib/toast';
 
 async function toggleTrackAction(trackName: string, action: TrackAction): Promise<void> {
   const classPattern = ACTION_CLASS_PATTERNS[action];
@@ -23,14 +29,14 @@ async function toggleTrackAction(trackName: string, action: TrackAction): Promis
   );
   if (textNode == null) {
     logError(`Track "${trackName}" not found after retries`);
-    showToast(`${trackName} track not found`, true);
+    showErrorToast(`${trackName} track not found`);
     return;
   }
 
   const container = await retryUntil(() => findTrackContainer(textNode), RETRY_ATTEMPTS, RETRY_DELAY_MS);
   if (container == null) {
     logError(`Could not find track container for "${trackName}"`);
-    showToast(`${trackName} container not found`, true);
+    showErrorToast(`${trackName} container not found`);
     return;
   }
 
@@ -41,13 +47,14 @@ async function toggleTrackAction(trackName: string, action: TrackAction): Promis
   );
   if (button == null) {
     logError(`${action} button not found in "${trackName}" container`);
-    showToast(`${trackName} ${action} button not found`, true);
+    showErrorToast(`${trackName} ${action} button not found`);
     return;
   }
 
+  const state = nextToggleState(button);
   button.click();
   log(`${trackName} ${action} toggled`);
-  showToast(`${trackName} ${action} toggled`, false);
+  showActionToast(trackName, action, state);
 }
 
 export default defineContentScript({

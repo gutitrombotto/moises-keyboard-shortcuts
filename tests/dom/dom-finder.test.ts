@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
 import { ACTION_CLASS_PATTERNS } from '@/lib/config';
-import { findActionButton, findTrackContainer, findTrackTextNode, hasTrackControls } from '@/lib/dom-finder';
+import {
+  findActionButton,
+  findTrackContainer,
+  findTrackTextNode,
+  hasTrackControls,
+  nextToggleState,
+} from '@/lib/dom-finder';
 import { loadFixture } from './load-fixture';
 
 function containerFor(doc: Document, trackName: string): HTMLElement {
@@ -76,6 +82,15 @@ describe('findActionButton', () => {
   it('returns null when the pattern matches no button in the container', () => {
     const container = containerFor(loadFixture('player'), 'Bass');
     expect(findActionButton(container, 'buttonRecord')).toBeNull();
+  });
+
+  it('predicts the resulting toggle state from aria-pressed before clicking', () => {
+    const button = document.createElement('button');
+    expect(nextToggleState(button)).toBe('unknown');
+    button.setAttribute('aria-pressed', 'false');
+    expect(nextToggleState(button)).toBe('on');
+    button.setAttribute('aria-pressed', 'true');
+    expect(nextToggleState(button)).toBe('off');
   });
 
   it('yields a clickable button', () => {

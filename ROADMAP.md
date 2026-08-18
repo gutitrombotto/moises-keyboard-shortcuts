@@ -6,15 +6,16 @@ Work route derived from `SPECS.md`. Each phase ends with something demonstrable.
 
 Updated at every phase close. ✅ merged · 🔍 in review/validation · ⬜ not started.
 
-| Phase                              | Status        | Notes                                                                                                                                                                 |
-| ---------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| v1.0–v1.3 — vanilla JS versions    | ✅ published  | v1.3 live on the CWS (item `oednmjhdohclojfahpjabgjmmegojbef`) since 2026-07-19; ~91 users, no ratings yet                                                            |
-| M1 — Migration to WXT + TypeScript | ✅ 2026-08-17 | Cartly-mirror stack; behavior identical to v1.3; version bumped to 1.4.0 (3-part semver)                                                                              |
-| M2 — Tests + CI                    | ✅ 2026-08-17 | 42 tests over player/shell DOM fixture replicas; CI = lint + typecheck + test + build                                                                                 |
-| M3 — Docs                          | ✅ 2026-08-17 | SPECS / ROADMAP / CODESTYLE / PRIVACY / README / CLAUDE rewritten to the Cartly format                                                                                |
-| M4 — Store assets + tooling        | ✅ 2026-08-17 | `store-assets/` (listings en/es, 5×2 screenshots 1280×800, icon, justifications, checklist), `.mcp.json` (cws-browser), `/store-check` skill                          |
-| M5 — Manual validation of v1.4.0   | ⬜            | Load `.output/chrome-mv3/` unpacked, verify against the real player (matrix below); then remove legacy files in their own commit                                      |
-| M6 — Publish v1.4.0                | ⬜            | Via `/store-check`; **submission only with explicit user confirmation**. Blocker: the declared privacy policy URL 404s (repo is private, no GitHub Pages) — fix first |
+| Phase                              | Status        | Notes                                                                                                                                                                                                                         |
+| ---------------------------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| v1.0–v1.3 — vanilla JS versions    | ✅ published  | v1.3 live on the CWS (item `oednmjhdohclojfahpjabgjmmegojbef`) since 2026-07-19; ~91 users, no ratings yet                                                                                                                    |
+| M1 — Migration to WXT + TypeScript | ✅ 2026-08-17 | Cartly-mirror stack; behavior identical to v1.3; version bumped to 1.4.0 (3-part semver)                                                                                                                                      |
+| M2 — Tests + CI                    | ✅ 2026-08-17 | 42 tests over player/shell DOM fixture replicas; CI = lint + typecheck + test + build                                                                                                                                         |
+| M3 — Docs                          | ✅ 2026-08-17 | SPECS / ROADMAP / CODESTYLE / PRIVACY / README / CLAUDE rewritten to the Cartly format                                                                                                                                        |
+| M4 — Store assets + tooling        | ✅ 2026-08-17 | `store-assets/` (listings en/es, 5×2 screenshots 1280×800, icon, justifications, checklist), `.mcp.json` (cws-browser), `/store-check` skill                                                                                  |
+| M5 — Manual validation of v1.4.0   | ✅ 2026-08-17 | v1.4.0 verified by hand against the real player — behavior parity with v1.3 confirmed. Legacy-file removal deferred until the privacy-policy hosting is decided (the live policy URL points at `docs/privacy.html`)           |
+| M6 — Popup + toast redesign        | 🔍            | v1.5.0: cheat-sheet popup (contextual status, per-track colors, i18n en/es), toasts with track accent + state chip (`aria-pressed`), restyled feedback pill. PR pending validation on the real player                         |
+| M7 — Publish v1.5.0                | ⬜            | Via `/store-check`; **submission only with explicit user confirmation**. The store jumps 1.3 → 1.5.0 (1.4.0 was never uploaded). Blocker: the declared privacy policy URL 404s (repo is private, no GitHub Pages) — fix first |
 
 ## M5 — Manual validation matrix (gate for legacy removal)
 

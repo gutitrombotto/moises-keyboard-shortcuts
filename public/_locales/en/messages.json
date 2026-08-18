@@ -6,5 +6,41 @@
   "extDescription": {
     "message": "Keyboard shortcuts for Moises.ai stem player — mute/solo any track with a single keypress",
     "description": "Manifest description. Doubles as the Web Store listing summary; max 132 characters."
+  },
+  "popupStatusActive": {
+    "message": "Active on this player — press a key",
+    "description": "Popup status when the active tab is the Moises player."
+  },
+  "popupStatusWaiting": {
+    "message": "Waiting for the player —",
+    "description": "Popup status when the active tab is not the Moises player; followed by the open-player link."
+  },
+  "popupOpenPlayer": {
+    "message": "open studio.moises.ai ↗",
+    "description": "Link that opens the Moises player in a new tab."
+  },
+  "popupHintTyping": {
+    "message": "Shortcuts pause while you type in a text field.",
+    "description": "Input-safety hint, first sentence."
+  },
+  "popupHintPasteSuffix": {
+    "message": "still pastes.",
+    "description": "Input-safety hint, rendered after the Ctrl+V keycaps."
+  },
+  "popupMute": {
+    "message": "mute",
+    "description": "Action label in the shortcut rows."
+  },
+  "popupSolo": {
+    "message": "solo",
+    "description": "Action label in the shortcut rows."
+  },
+  "popupFeedback": {
+    "message": "Feedback ↗",
+    "description": "Footer link to the feedback form."
+  },
+  "popupPrivacy": {
+    "message": "0 data · 0 requests",
+    "description": "Footer privacy microcopy."
   }
 }

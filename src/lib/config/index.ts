@@ -5,6 +5,10 @@ export interface Shortcut {
   action: TrackAction;
 }
 
+// The resulting state of a toggle click; 'unknown' when the player's button
+// exposes no aria-pressed to read.
+export type ToggleState = 'on' | 'off' | 'unknown';
+
 // Keys are KeyboardEvent.key values: a Shift-ed letter arrives as its uppercase
 // form, which is how "v = mute, Shift+V = solo" works without reading e.shiftKey.
 export const SHORTCUTS: Readonly<Record<string, Shortcut>> = {
@@ -24,6 +28,17 @@ export const ACTION_CLASS_PATTERNS: Readonly<Record<TrackAction, string>> = {
   mute: 'buttonMute',
   solo: 'buttonSolo',
 };
+
+// Track accent colors, shared by the popup cheat-sheet and the toasts. Tracks
+// added to SHORTCUTS without an entry here fall back to the neutral gray.
+export const TRACK_COLORS: Readonly<Record<string, string>> = {
+  Vocals: '#3ee6a0',
+  Drums: '#5ea0ff',
+  Bass: '#c084fc',
+  Other: '#fbbf24',
+};
+
+export const DEFAULT_TRACK_COLOR = '#9ca3af';
 
 export const RETRY_ATTEMPTS = 3;
 export const RETRY_DELAY_MS = 100;
