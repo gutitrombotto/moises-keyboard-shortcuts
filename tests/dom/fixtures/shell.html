@@ -1,0 +1,23 @@
+<!doctype html>
+<!--
+  Replica of the studio.moises.ai shell page: it only wraps the player iframe
+  (plus unrelated ad/paywall iframes) and holds no track controls. The content
+  script also runs here under all_frames and must stay inert (SPECS §4.2).
+-->
+<html>
+  <body>
+    <div id="__next">
+      <nav class="shell_navbar__t5RqK">
+        <span class="shell_songTitle__p8LmO">My Song — Moises</span>
+        <button class="shell_buttonShare__w3JcY" aria-label="Share">
+          <svg viewBox="0 0 24 24"><path d="M4 12h16" /></svg>
+        </button>
+      </nav>
+      <iframe
+        class="shell_playerFrame__h6DnZ"
+        src="https://studio1.moises.ai/player2/abc123/?shellDisabled=true"
+      ></iframe>
+      <iframe class="shell_adFrame__c9XvB" src="https://bling-bling.moises.ai/banner"></iframe>
+    </div>
+  </body>
+</html>

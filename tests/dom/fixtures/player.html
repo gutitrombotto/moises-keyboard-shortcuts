@@ -1,0 +1,91 @@
+<!doctype html>
+<!--
+  Faithful replica of the studio1.moises.ai player2 frame (v1.3-era DOM),
+  reconstructed from the invariants the extension relies on (SPECS §4):
+  hashed CSS-module classes with stable prefixes (controls_buttonMute__*,
+  controls_buttonSolo__*), SVG-only buttons, track labels as plain text nodes,
+  and a Smart Metronome row that shares the control classes. Replace with a
+  saved copy of the real frame if Moises changes its DOM.
+-->
+<html>
+  <body>
+    <div id="__next">
+      <div class="player_container__Qw3rT">
+        <div class="controls_trackList__9dK2m">
+          <div class="controls_track__aB3cD" data-track="vocals">
+            <div class="controls_trackInfo__xY9zW">
+              <span class="controls_trackName__qR5tU">Vocals</span>
+              <span class="controls_trackSubtitle__f4GhJ">Lead</span>
+            </div>
+            <div class="controls_trackActions__mN8vC">
+              <button class="controls_buttonMute__HNRvx" aria-label="Mute Vocals">
+                <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z" /></svg>
+              </button>
+              <button class="controls_buttonSolo__k9PqL" aria-label="Solo Vocals">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /></svg>
+              </button>
+              <button class="controls_buttonMore__z1AeF" aria-label="More options">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2" /></svg>
+              </button>
+            </div>
+          </div>
+          <div class="controls_track__aB3cD" data-track="drums">
+            <div class="controls_trackInfo__xY9zW">
+              <span class="controls_trackName__qR5tU">Drums</span>
+            </div>
+            <div class="controls_trackActions__mN8vC">
+              <button class="controls_buttonMute__HNRvx" aria-label="Mute Drums">
+                <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z" /></svg>
+              </button>
+              <button class="controls_buttonSolo__k9PqL" aria-label="Solo Drums">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /></svg>
+              </button>
+            </div>
+          </div>
+          <div class="controls_track__aB3cD" data-track="bass">
+            <div class="controls_trackInfo__xY9zW">
+              <span class="controls_trackName__qR5tU">Bass</span>
+            </div>
+            <div class="controls_trackActions__mN8vC">
+              <button class="controls_buttonMute__HNRvx" aria-label="Mute Bass">
+                <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z" /></svg>
+              </button>
+              <button class="controls_buttonSolo__k9PqL" aria-label="Solo Bass">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /></svg>
+              </button>
+            </div>
+          </div>
+          <div class="controls_track__aB3cD" data-track="other">
+            <div class="controls_trackInfo__xY9zW">
+              <span class="controls_trackName__qR5tU">Other</span>
+            </div>
+            <div class="controls_trackActions__mN8vC">
+              <button class="controls_buttonMute__HNRvx" aria-label="Mute Other">
+                <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z" /></svg>
+              </button>
+              <button class="controls_buttonSolo__k9PqL" aria-label="Solo Other">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /></svg>
+              </button>
+            </div>
+          </div>
+          <div class="controls_track__aB3cD" data-track="metronome">
+            <div class="controls_trackInfo__xY9zW">
+              <span class="controls_trackName__qR5tU">Smart Metronome</span>
+            </div>
+            <div class="controls_trackActions__mN8vC">
+              <button class="controls_buttonMute__HNRvx" aria-label="Mute Smart Metronome">
+                <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z" /></svg>
+              </button>
+              <button class="controls_buttonSolo__k9PqL" aria-label="Solo Smart Metronome">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="player_footer__u7VbN">
+          <input type="text" class="player_songSearch__e2WsX" placeholder="Search songs" />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
