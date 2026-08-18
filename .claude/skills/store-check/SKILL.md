@@ -83,8 +83,8 @@ Revisar y reportar como tabla de paridad (dashboard vs repo):
    idioma).
 4. **Privacidad**: single purpose, justificación de cada host permission, remote code =
    No, data types (regla dura 3: ninguno marcado), certificaciones firmadas, policy URL
-   — **la URL histórica devuelve 404** (ver `SUBMISSION_CHECKLIST.md` §0); verificar que
-   se haya corregido antes de cualquier envío.
+   (`https://gutitrombotto.github.io/moises-keyboard-shortcuts/privacy.html`, servida por
+   GitHub Pages desde `main:/docs` — verificar que devuelva 200 antes de cualquier envío).
 5. **Distribución**: Sin costo, Pública, todas las regiones.
 
 ## Fase 3 — Publicación (cerrar gaps)

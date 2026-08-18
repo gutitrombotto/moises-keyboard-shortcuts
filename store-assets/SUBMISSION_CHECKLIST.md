@@ -2,11 +2,11 @@
 
 Dashboard: https://chrome.google.com/webstore/devconsole → open the existing item (`oednmjhdohclojfahpjabgjmmegojbef`) → **Package → Upload new package**. This is an update, not a new item: v1.3 is already published (since 2026-07-19, ~91 users).
 
-## 0. Blockers — resolve BEFORE submitting
+## 0. Blockers — resolved 2026-08-17
 
-- [ ] **Privacy policy URL is broken.** The listing declares `https://gutitrombotto.github.io/moises-keyboard-shortcuts/privacy.html`, which returns 404: the repo is private and GitHub Pages is not configured. Either make the repo public and enable Pages (serving `PRIVACY.md`'s content), or host the policy elsewhere and update the URL in the dashboard. A dead policy URL is grounds for rejection.
-- [ ] **"Open source" claim.** The current listing links this repository, which is private. Make the repo public or drop the claim from the description (the drafted copy in `store-assets/listing/` no longer includes it).
-- [ ] **Manual validation of v1.4.0 passed** (ROADMAP §M5) — behavior parity with v1.3 confirmed on the real player.
+- [x] **Privacy policy URL** — the repo was made public and GitHub Pages now serves `docs/privacy.html` (kept in sync with `PRIVACY.md`) at the URL the listing declares: `https://gutitrombotto.github.io/moises-keyboard-shortcuts/privacy.html`. Verify it returns 200 before submitting.
+- [x] **"Open source" claim** — the repo is public (MIT); the linked repository resolves again.
+- [x] **Manual validation** — v1.4.0 (M5) and v1.5.0 popup/toasts (M6) verified by hand on the real player.
 
 ## 1. Package
 

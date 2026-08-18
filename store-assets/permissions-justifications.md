@@ -36,7 +36,7 @@ Data types — **check none**. Google defines "handle" as "collecting, transmitt
 
 Certifications — all three can be signed: no data sold or transferred to third parties, no use unrelated to the single purpose, no creditworthiness or lending use.
 
-**Privacy policy URL:** see `SUBMISSION_CHECKLIST.md` — the historically declared URL (`https://gutitrombotto.github.io/moises-keyboard-shortcuts/privacy.html`) currently returns 404 (the repo is private and GitHub Pages is not configured) and must be fixed before the next submission. The policy text is `PRIVACY.md`.
+**Privacy policy URL:** `https://gutitrombotto.github.io/moises-keyboard-shortcuts/privacy.html` — served via GitHub Pages from `main:/docs/privacy.html`, kept in sync with `PRIVACY.md`.
 
 ### Remote code
 

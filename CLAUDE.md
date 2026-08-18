@@ -25,5 +25,5 @@ Agrega atajos de teclado para mutear/solear pistas en el stem player de Moises.a
 - `store-assets/SUBMISSION_CHECKLIST.md` — checklist de publicación en el CWS.
 - Convenciones de código en `CODESTYLE.md`. Lint: `pnpm lint`; tests: `pnpm test`;
   build/paquete del store: `pnpm zip` (deja el ZIP en `.output/`).
-- Los archivos legacy de v1.3 (`manifest.json`, `config.js`, `content.js`, `docs/`,
-  `scripts/`) quedan hasta cerrar la validación manual de ROADMAP §M5 — no tocarlos.
+- `docs/privacy.html` es la privacy policy que linkea el listing del CWS, servida por
+  GitHub Pages desde `main:/docs` — mantenerla en sync con `PRIVACY.md`, nunca borrarla.

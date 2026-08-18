@@ -13,7 +13,7 @@ Moises Keyboard Shortcuts is a B2C Chrome extension (Manifest V3) that adds keyb
 
 **Supported platform (v1.5):** Chrome desktop. The extension runs only on `studio.moises.ai` and `studio1.moises.ai`.
 
-**Repository:** private, `github.com/gutitrombotto/moises-keyboard-shortcuts`. Workflow: **PR-based with `main`** — CI (lint + typecheck + test + build) must pass before merge. Details in `CODESTYLE.md` §Git.
+**Repository:** public (MIT), `github.com/gutitrombotto/moises-keyboard-shortcuts`. Workflow: **PR-based with `main`** — CI (lint + typecheck + test + build) must pass before merge. Details in `CODESTYLE.md` §Git.
 
 **Published:** Chrome Web Store item `oednmjhdohclojfahpjabgjmmegojbef`, account gutitrombotto@gmail.com. Store operations are specified in `.claude/skills/store-check/SKILL.md`; listing sources of truth live in `store-assets/`.
 
@@ -68,7 +68,7 @@ moises-keyboard-shortcuts/
     └── retry/
 ```
 
-Legacy v1.3 files (`manifest.json`, `config.js`, `content.js`, `docs/`, `scripts/`) remain in the tree until the migrated build is validated by hand against the real player; they are then removed in their own commit (ROADMAP).
+`docs/privacy.html` is not part of the extension: it is the privacy policy page the Chrome Web Store listing links to, served via GitHub Pages from `main:/docs`. Keep it in sync with `PRIVACY.md`.
 
 ## 3. Platform & Permissions Model
 

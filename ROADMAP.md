@@ -13,9 +13,9 @@ Updated at every phase close. ✅ merged · 🔍 in review/validation · ⬜ not
 | M2 — Tests + CI                    | ✅ 2026-08-17 | 42 tests over player/shell DOM fixture replicas; CI = lint + typecheck + test + build                                                                                                                                                                                      |
 | M3 — Docs                          | ✅ 2026-08-17 | SPECS / ROADMAP / CODESTYLE / PRIVACY / README / CLAUDE rewritten to the Cartly format                                                                                                                                                                                     |
 | M4 — Store assets + tooling        | ✅ 2026-08-17 | `store-assets/` (listings en/es, 5×2 screenshots 1280×800, icon, justifications, checklist), `.mcp.json` (cws-browser), `/store-check` skill                                                                                                                               |
-| M5 — Manual validation of v1.4.0   | ✅ 2026-08-17 | v1.4.0 verified by hand against the real player — behavior parity with v1.3 confirmed. Legacy-file removal deferred until the privacy-policy hosting is decided (the live policy URL points at `docs/privacy.html`)                                                        |
+| M5 — Manual validation of v1.4.0   | ✅ 2026-08-17 | v1.4.0 verified by hand against the real player — behavior parity with v1.3 confirmed. Legacy v1.3 files removed once the policy hosting was settled (`docs/privacy.html` stays: GitHub Pages serves it as the listing's policy URL)                                       |
 | M6 — Popup + toast redesign        | ✅ 2026-08-17 | v1.5.0: cheat-sheet popup (contextual status, per-track colors, i18n en/es), toasts with track accent + state chip (`aria-pressed`), restyled feedback pill. [#1](https://github.com/gutitrombotto/moises-keyboard-shortcuts/pull/1), validated by hand on the real player |
-| M7 — Publish v1.5.0                | ⬜            | Via `/store-check`; **submission only with explicit user confirmation**. The store jumps 1.3 → 1.5.0 (1.4.0 was never uploaded). Blocker: the declared privacy policy URL 404s (repo is private, no GitHub Pages) — fix first                                              |
+| M7 — Publish v1.5.0                | ⬜            | Via `/store-check`; **submission only with explicit user confirmation**. The store jumps 1.3 → 1.5.0 (1.4.0 was never uploaded). Blockers cleared 2026-08-17: repo public (MIT) + GitHub Pages serving the declared policy URL                                             |
 
 ## M5 — Manual validation matrix (gate for legacy removal)
 
@@ -28,7 +28,7 @@ On a real song at `studio.moises.ai/player2/...` with the unpacked v1.4.0 build:
 - Debounce: holding `v` does not flicker the mute state.
 - Feedback link: pill appears bottom-left in the player, dismissal sticks across reloads.
 
-**Done when:** every row passes → remove `manifest.json`, `config.js`, `content.js`, `docs/`, `scripts/package.sh` in a dedicated commit (decide the privacy-policy hosting first — the live listing links `docs/privacy.html` via a GitHub Pages URL that is currently broken).
+**Done when:** every row passes → remove the legacy files in a dedicated commit. ✅ Done 2026-08-17: `manifest.json`, `config.js`, `content.js`, `scripts/`, `icons/` and the old `docs/` listing assets removed; `docs/privacy.html` kept as the GitHub-Pages-served policy page.
 
 ## M6 — Popup + toast redesign (validation matrix)
 
@@ -46,6 +46,8 @@ On a real song with the unpacked v1.5.0 build, in addition to the M5 matrix:
 
 ## Post-v1.5 (backlog)
 
+- **Premium exploration (Pro tier)**: define what musicians would pay for before building any sales surface. Leading candidates, roughly by value/effort: configurable shortcuts (below), keyboard control of the player's **speed and pitch** (the practice loop: slow down → repeat), per-track **volume nudges**, **scenes/presets** ("practice mode": one key = mute vocals + solo drums), and **MIDI foot-pedal support** via WebMIDI (hands-free control while playing — strongest willingness-to-pay signal). Branding caution: monetizing under the "Moises" name invites a trademark complaint from Music.AI; a paid tier likely needs its own name ("… for Moises.ai" as descriptor).
+- **Sales/landing page in Notion**: a public Notion page as the zero-maintenance marketing surface (what it does, GIF/screenshots, install CTA, changelog, Pro pitch when it exists). Cheap to stand up, no domain or Lovable project needed; revisit a real site (Cartly-style Lovable + checkout) only when there is a Pro tier to sell.
 - **Configurable shortcuts**: options page to remap keys and add tracks without editing code. First real UI — adopts React + `storage` permission; revisit SPECS §2 stack table when it lands.
 - **Dynamic track support**: detect whatever stems the current separation actually has (Piano, Guitar, 5+ stem plans) instead of the fixed four.
 - **More actions**: volume up/down per track, pan — the player exposes sliders that the same container-detection could drive.

@@ -55,8 +55,8 @@ Conventions for all code in this repository. Non-negotiable; enforced by tooling
 
 ## Git
 
-- Repository: private, `github.com/gutitrombotto/moises-keyboard-shortcuts`.
+- Repository: public (MIT), `github.com/gutitrombotto/moises-keyboard-shortcuts`.
 - **PR-based workflow**: changes land on `main` via pull request with green CI (lint + typecheck + test + build). Branch names: `feat/…`, `fix/…`, `chore/…`.
 - Conventional Commits (`feat:`, `fix:`, `refactor:`, `test:`, `chore:`).
 - Small, single-purpose commits; the build and tests must pass on every commit.
-- No commented-out code, no dead files, no unused exports in the tree (the legacy v1.3 files are the documented, temporary exception until ROADMAP §M5 closes).
+- No commented-out code, no dead files, no unused exports in the tree.
