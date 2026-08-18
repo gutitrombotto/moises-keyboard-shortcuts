@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "cws-browser": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--user-data-dir",
+        "/home/atrombotto/.local/share/moises-kbd/cws-profile"
+      ]
+    }
+  }
+}
