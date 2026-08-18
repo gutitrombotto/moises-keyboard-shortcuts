@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -10,27 +10,65 @@
     h2 { font-size: 1.15rem; margin-top: 2rem; }
     p { margin: 0.75rem 0; }
     .updated { color: #777; font-size: 0.9rem; }
+    hr { margin: 3rem 0 2rem; border: none; border-top: 1px solid #ddd; }
+    code { background: #f4f4f4; padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
   </style>
 </head>
 <body>
   <h1>Privacy Policy</h1>
   <p><strong>Moises Keyboard Shortcuts</strong> — Chrome Extension</p>
-  <p class="updated">Last updated: February 22, 2026</p>
+  <p class="updated">Effective date: August 17, 2026 · <em>La versión en español está debajo.</em></p>
 
   <h2>Summary</h2>
-  <p>This extension does not collect, store, or transmit any user data. It runs entirely in your browser.</p>
+  <p>This extension is built on one principle: <strong>it collects nothing, and it sends nothing.</strong></p>
+
+  <h2>What the extension does</h2>
+  <p>The extension runs a script only on <code>studio.moises.ai</code> and <code>studio1.moises.ai</code> (the Moises stem player). When you press a shortcut key, it finds the matching mute or solo button in the page and clicks it — exactly what you would do with the mouse. All processing happens locally in your browser tab.</p>
 
   <h2>Data collection</h2>
-  <p>This extension collects <strong>no data</strong> of any kind. It does not use cookies, analytics, tracking, or any third-party services.</p>
+  <p><strong>None.</strong> No analytics, no cookies, no trackers, no accounts, no third-party services. We do not know who installed the extension, what songs you play, or which keys you press.</p>
 
-  <h2>How it works</h2>
-  <p>The extension injects a content script on <code>studio.moises.ai</code> that listens for keyboard events and clicks the corresponding mute/solo buttons in the page. All processing happens locally in your browser tab. No information ever leaves your device.</p>
+  <h2>Network requests</h2>
+  <p>The extension makes <strong>zero network requests</strong>. There is no server, and nothing to send to one.</p>
+  <p>One thing produces network activity you could reasonably attribute to us, so we say it out loud: the player shows a small, dismissible <strong>"Shortcuts feedback" link</strong> that opens a Google Form in a new tab — only if you click it. Nothing is sent until you click, and the form itself is a standard Google Form governed by Google's privacy policy. Dismissing the link stores a single flag in your browser's <code>localStorage</code> so it stays hidden; that flag never leaves your device.</p>
 
   <h2>Permissions</h2>
-  <p>The extension requires host access to <code>studio.moises.ai</code> solely to inject the keyboard shortcut script. This permission is not used for any other purpose.</p>
+  <p>The extension requests host access to <code>studio.moises.ai</code> and <code>studio1.moises.ai</code> solely to inject the shortcut script into the player (the player itself lives in an iframe on the second domain — that is the only reason there are two). It cannot read or act on any other website.</p>
+
+  <h2>Uninstalling</h2>
+  <p>Removing the extension deletes everything it ever stored (the single dismissal flag), per Chrome's standard behavior.</p>
 
   <h2>Contact</h2>
-  <p>If you have questions about this policy, you can open an issue on the <a href="https://github.com/gutitrombotto/moises-keyboard-shortcuts">GitHub repository</a>.</p>
+  <p>Questions or concerns: open an issue on the <a href="https://github.com/gutitrombotto/moises-keyboard-shortcuts">GitHub repository</a> or use the in-player feedback link.</p>
+  <p>Changes to this policy will be published on this page with an updated effective date.</p>
+
+  <hr>
+
+  <h1 lang="es">Política de privacidad</h1>
+  <p lang="es" class="updated">Fecha de vigencia: 17 de agosto de 2026</p>
+
+  <h2 lang="es">Resumen</h2>
+  <p lang="es">Esta extensión está construida sobre un principio: <strong>no recolecta nada y no envía nada.</strong></p>
+
+  <h2 lang="es">Qué hace la extensión</h2>
+  <p lang="es">La extensión ejecuta un script únicamente en <code>studio.moises.ai</code> y <code>studio1.moises.ai</code> (el stem player de Moises). Cuando apretás una tecla de atajo, encuentra el botón de mute o solo correspondiente en la página y lo clickea — exactamente lo que harías con el mouse. Todo el procesamiento ocurre localmente en tu pestaña del navegador.</p>
+
+  <h2 lang="es">Recolección de datos</h2>
+  <p lang="es"><strong>Ninguna.</strong> Sin analytics, sin cookies, sin trackers, sin cuentas, sin servicios de terceros. No sabemos quién instaló la extensión, qué canciones escuchás ni qué teclas apretás.</p>
+
+  <h2 lang="es">Solicitudes de red</h2>
+  <p lang="es">La extensión hace <strong>cero solicitudes de red</strong>. No hay servidor, ni nada que enviarle.</p>
+  <p lang="es">Hay una cosa que genera actividad de red que razonablemente podrías atribuirnos, así que preferimos decirla: el player muestra un link chico y descartable de <strong>"Shortcuts feedback"</strong> que abre un formulario de Google en una pestaña nueva — solo si lo clickeás. No se envía nada hasta que hacés clic, y el formulario es un Google Form estándar regido por la política de privacidad de Google. Descartar el link guarda un único flag en el <code>localStorage</code> de tu navegador para que no vuelva a aparecer; ese flag nunca sale de tu dispositivo.</p>
+
+  <h2 lang="es">Permisos</h2>
+  <p lang="es">La extensión pide acceso a <code>studio.moises.ai</code> y <code>studio1.moises.ai</code> únicamente para inyectar el script de atajos en el player (el player vive en un iframe del segundo dominio — esa es la única razón de que sean dos). No puede leer ni operar sobre ningún otro sitio.</p>
+
+  <h2 lang="es">Desinstalación</h2>
+  <p lang="es">Eliminar la extensión borra todo lo que alguna vez guardó (el único flag de descarte), según el comportamiento estándar de Chrome.</p>
+
+  <h2 lang="es">Contacto</h2>
+  <p lang="es">Preguntas o consultas: abrí un issue en el <a href="https://github.com/gutitrombotto/moises-keyboard-shortcuts">repositorio de GitHub</a> o usá el link de feedback del player.</p>
+  <p lang="es">Los cambios a esta política se publicarán en esta página con la fecha de vigencia actualizada.</p>
 
   <p class="updated">Developer: Agustin Trombotto</p>
 </body>
