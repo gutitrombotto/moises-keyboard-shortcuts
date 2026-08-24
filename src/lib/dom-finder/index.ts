@@ -1,4 +1,4 @@
-import { ACTION_CLASS_PATTERNS, type ToggleState } from '@/lib/config';
+import { ACTION_CLASS_PATTERNS, TRACK_LABELS, type ToggleState } from '@/lib/config';
 
 // Walking more levels than the track-row depth would let two rows share a
 // "container" (e.g. the whole track list), so the climb is bounded.
@@ -10,12 +10,24 @@ export function hasTrackControls(root: Document): boolean {
   return root.querySelector(`[class*="${ACTION_CLASS_PATTERNS.mute}"]`) != null;
 }
 
+// Every label a stem can render as, lowercased for a case-insensitive match.
+// Falls back to the canonical name so a track absent from TRACK_LABELS still
+// matches itself.
+function acceptedLabels(trackName: string): string[] {
+  const labels = TRACK_LABELS[trackName] ?? [trackName];
+  return labels.map((label) => label.toLowerCase());
+}
+
 // Tracks have no stable ids or test hooks; the visible label text is the only
-// reliable anchor, hence a TreeWalker over text nodes.
+// reliable anchor, hence a TreeWalker over text nodes. The player localizes the
+// label, so the match is against the stem's known labels (TRACK_LABELS), still
+// on the full trimmed text node (never a substring).
 export function findTrackTextNode(root: Document, trackName: string): Text | null {
+  const accepted = acceptedLabels(trackName);
   const walker = root.createTreeWalker(root.body, NodeFilter.SHOW_TEXT, {
     acceptNode(node: Node): number {
-      if (node.textContent != null && node.textContent.trim() === trackName) {
+      const text = node.textContent?.trim().toLowerCase();
+      if (text != null && text.length > 0 && accepted.includes(text)) {
         return NodeFilter.FILTER_ACCEPT;
       }
       return NodeFilter.FILTER_REJECT;

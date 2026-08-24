@@ -14,9 +14,11 @@ import {
   nextToggleState,
 } from '@/lib/dom-finder';
 import { surfaceFeedbackLink } from '@/lib/feedback';
+import { msg } from '@/lib/i18n';
 import { resolveShortcut, shouldIgnoreKeypress } from '@/lib/keyboard';
 import { log, logError } from '@/lib/logger';
 import { retryUntil } from '@/lib/retry';
+import { recordUse } from '@/lib/review';
 import { showActionToast, showErrorToast } from '@/lib/toast';
 
 async function toggleTrackAction(trackName: string, action: TrackAction): Promise<void> {
@@ -29,14 +31,14 @@ async function toggleTrackAction(trackName: string, action: TrackAction): Promis
   );
   if (textNode == null) {
     logError(`Track "${trackName}" not found after retries`);
-    showErrorToast(`${trackName} track not found`);
+    showErrorToast(`${trackName}: ${msg('errTrackNotFound')}`);
     return;
   }
 
   const container = await retryUntil(() => findTrackContainer(textNode), RETRY_ATTEMPTS, RETRY_DELAY_MS);
   if (container == null) {
     logError(`Could not find track container for "${trackName}"`);
-    showErrorToast(`${trackName} container not found`);
+    showErrorToast(`${trackName}: ${msg('errContainerNotFound')}`);
     return;
   }
 
@@ -47,7 +49,7 @@ async function toggleTrackAction(trackName: string, action: TrackAction): Promis
   );
   if (button == null) {
     logError(`${action} button not found in "${trackName}" container`);
-    showErrorToast(`${trackName} ${action} button not found`);
+    showErrorToast(`${trackName} ${action}: ${msg('errButtonNotFound')}`);
     return;
   }
 
@@ -55,6 +57,9 @@ async function toggleTrackAction(trackName: string, action: TrackAction): Promis
   button.click();
   log(`${trackName} ${action} toggled`);
   showActionToast(trackName, action, state);
+  // A successful toggle is the only signal that the extension delivered value,
+  // so it is the trigger that (eventually) earns the review prompt.
+  recordUse();
 }
 
 export default defineContentScript({

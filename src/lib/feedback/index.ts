@@ -1,5 +1,6 @@
 import { FEEDBACK_URL } from '@/lib/config';
 import { hasTrackControls } from '@/lib/dom-finder';
+import { msg } from '@/lib/i18n';
 import { retryUntil } from '@/lib/retry';
 
 const FEEDBACK_ID = 'moises-kb-feedback';
@@ -59,7 +60,7 @@ function showFeedbackLink(): void {
   });
 
   const link = document.createElement('a');
-  link.textContent = '⌨️ Shortcuts feedback';
+  link.textContent = msg('feedbackLink');
   link.href = FEEDBACK_URL;
   link.target = '_blank';
   link.rel = 'noopener';
@@ -67,7 +68,7 @@ function showFeedbackLink(): void {
 
   const close = document.createElement('span');
   close.textContent = '✕';
-  close.title = 'Dismiss';
+  close.title = msg('feedbackDismiss');
   Object.assign(close.style, { cursor: 'pointer', opacity: '0.7' });
   close.addEventListener('click', () => {
     markDismissed();
