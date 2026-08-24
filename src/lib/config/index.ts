@@ -46,3 +46,11 @@ export const DEBOUNCE_MS = 300;
 
 // Opt-in feedback link shown once (dismissible) in the player. '' disables it.
 export const FEEDBACK_URL: string = 'https://forms.gle/rcxd1vMkeJ7VDuE97';
+
+// Chrome Web Store review page for this item. '' disables the review prompt.
+export const REVIEW_URL: string =
+  'https://chromewebstore.google.com/detail/oednmjhdohclojfahpjabgjmmegojbef/reviews';
+
+// Successful toggles before the one-time review prompt is earned. Low enough to
+// catch the intent window, high enough that the user has felt the value first.
+export const REVIEW_PROMPT_AFTER = 5;

@@ -1,6 +1,7 @@
 import { browser } from 'wxt/browser';
 
 import { DEFAULT_TRACK_COLOR, FEEDBACK_URL, SHORTCUTS, TRACK_COLORS } from '@/lib/config';
+import { msg } from '@/lib/i18n';
 import { isPlayerUrl, PLAYER_URL } from '@/lib/urls';
 
 interface TrackKeys {
@@ -22,13 +23,6 @@ function collectTrackKeys(): TrackKeys[] {
     rows.push({ track: shortcut.track, muteKey: key, soloKey: solo?.[0] ?? null });
   }
   return rows;
-}
-
-// WXT generates a literal union of the _locales keys for getMessage.
-type MessageKey = Parameters<typeof browser.i18n.getMessage>[0];
-
-function msg(key: MessageKey): string {
-  return browser.i18n.getMessage(key);
 }
 
 function getEl(id: string): HTMLElement {

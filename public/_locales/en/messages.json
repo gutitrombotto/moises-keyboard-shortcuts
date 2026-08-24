@@ -29,11 +29,11 @@
   },
   "popupMute": {
     "message": "mute",
-    "description": "Action label in the shortcut rows."
+    "description": "Action label in the shortcut rows. Kept in English across locales — a standard audio term matching the MUTE/SOLO toast chips."
   },
   "popupSolo": {
     "message": "solo",
-    "description": "Action label in the shortcut rows."
+    "description": "Action label in the shortcut rows. Kept in English across locales."
   },
   "popupFeedback": {
     "message": "Feedback ↗",
@@ -42,5 +42,33 @@
   "popupPrivacy": {
     "message": "0 data · 0 requests",
     "description": "Footer privacy microcopy."
+  },
+  "errTrackNotFound": {
+    "message": "track not found",
+    "description": "In-page error toast suffix, composed as '<track>: <this>'. The track name comes from the player DOM and is not translated."
+  },
+  "errContainerNotFound": {
+    "message": "container not found",
+    "description": "In-page error toast suffix, composed as '<track>: <this>'."
+  },
+  "errButtonNotFound": {
+    "message": "button not found",
+    "description": "In-page error toast suffix, composed as '<track> <action>: <this>'. The action (mute/solo) stays in English, matching the toast chips."
+  },
+  "feedbackLink": {
+    "message": "⌨️ Shortcuts feedback",
+    "description": "Text of the dismissible in-player feedback pill."
+  },
+  "feedbackDismiss": {
+    "message": "Dismiss",
+    "description": "Tooltip on the ✕ that closes the feedback and review pills."
+  },
+  "reviewText": {
+    "message": "Enjoying the shortcuts?",
+    "description": "Lead-in text of the in-player review prompt, shown after a few successful uses."
+  },
+  "reviewCta": {
+    "message": "Rate on the Web Store ★",
+    "description": "Link in the review prompt that opens the Chrome Web Store review page."
   }
 }
