@@ -7,6 +7,10 @@
         "--user-data-dir",
         "/home/atrombotto/.local/share/moises-kbd/cws-profile"
       ]
+    },
+    "brave-cdp": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest", "--cdp-endpoint", "http://127.0.0.1:9222"]
     }
   }
 }
