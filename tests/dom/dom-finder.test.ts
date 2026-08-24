@@ -44,6 +44,44 @@ describe('findTrackTextNode', () => {
   });
 });
 
+describe('findTrackTextNode across locales (real 2026 player DOM)', () => {
+  // The player renders the label in the user's Moises UI language; detection
+  // must resolve the canonical stem to whatever the player actually shows.
+  it.each([
+    ['Vocals', 'Vocais'],
+    ['Drums', 'Bateria'],
+    ['Bass', 'Baixo'],
+    ['Other', 'Outro'],
+  ])('resolves %s to the Portuguese label "%s"', (trackName, label) => {
+    const textNode = findTrackTextNode(loadFixture('player-pt'), trackName);
+    expect(textNode?.textContent?.trim()).toBe(label);
+  });
+
+  it.each([
+    ['Vocals', 'Voz'],
+    ['Drums', 'Batería'],
+    ['Bass', 'Bajo'],
+    ['Other', 'Otros'],
+  ])('resolves %s to the Spanish label "%s"', (trackName, label) => {
+    const textNode = findTrackTextNode(loadFixture('player-es'), trackName);
+    expect(textNode?.textContent?.trim()).toBe(label);
+  });
+
+  it('drives the localized row end to end: container + mute button', () => {
+    const doc = loadFixture('player-pt');
+    const container = containerFor(doc, 'Drums'); // "Bateria" in the fixture
+    expect(container.className).toContain('channel_line__');
+    expect(findActionButton(container, ACTION_CLASS_PATTERNS.mute)).not.toBeNull();
+    expect(findActionButton(container, ACTION_CLASS_PATTERNS.solo)).not.toBeNull();
+  });
+
+  it('keeps the localized Smart Metronome row out of track lookups', () => {
+    // "Metrônomo Inteligente" is not any stem's label, so it never resolves.
+    expect(findTrackTextNode(loadFixture('player-pt'), 'Other')?.textContent?.trim()).toBe('Outro');
+    expect(findTrackTextNode(loadFixture('player-pt'), 'Metronome')).toBeNull();
+  });
+});
+
 describe('findTrackContainer', () => {
   it('returns the track row owning both a mute and a solo button', () => {
     const container = containerFor(loadFixture('player'), 'Vocals');

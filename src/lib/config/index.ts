@@ -29,6 +29,21 @@ export const ACTION_CLASS_PATTERNS: Readonly<Record<TrackAction, string>> = {
   solo: 'buttonSolo',
 };
 
+// The player localizes the visible track label to the user's Moises UI language,
+// and the row exposes no language-independent stem id (no data-*, no per-stem
+// icon or aria-label — verified live on the 2026 DOM). So detection matches the
+// label text against this table, case-insensitively. Each key is the canonical
+// (English) stem used everywhere else (SHORTCUTS, TRACK_COLORS, the popup); the
+// list is every label that stem is known to render as. Verified on the live
+// player for en and pt (pt-BR/pt-PT); es carries both common spellings pending a
+// live check. Add a language by extending each stem's list.
+export const TRACK_LABELS: Readonly<Record<string, readonly string[]>> = {
+  Vocals: ['Vocals', 'Vocais', 'Voz', 'Voces'],
+  Drums: ['Drums', 'Bateria', 'Batería'],
+  Bass: ['Bass', 'Baixo', 'Bajo'],
+  Other: ['Other', 'Outro', 'Outros', 'Otro', 'Otros'],
+};
+
 // Track accent colors, shared by the popup cheat-sheet and the toasts. Tracks
 // added to SHORTCUTS without an entry here fall back to the neutral gray.
 export const TRACK_COLORS: Readonly<Record<string, string>> = {
