@@ -62,6 +62,91 @@ export function findTrackContainer(textNode: Text): HTMLElement | null {
   return null;
 }
 
+// Text that never renders as a label, and would otherwise be walked into: the
+// GTM <noscript> and Next.js' __NEXT_DATA__ blob both live in the body.
+const NON_RENDERED_TAGS = new Set(['SCRIPT', 'NOSCRIPT', 'STYLE', 'TEMPLATE', 'TITLE']);
+
+function holdsControls(el: HTMLElement): boolean {
+  const selector = `[class*="${ACTION_CLASS_PATTERNS.mute}"], [class*="${ACTION_CLASS_PATTERNS.solo}"]`;
+  return el.querySelector(selector) != null;
+}
+
+// A row's label is its text that sits outside the controls subtree — which is
+// what separates "Vocals" from the volume readout rendered beside the buttons.
+// Ancestors are only inspected up to the row: above it every ancestor holds
+// controls, so an unbounded walk would reject everything.
+function isRowLabel(node: Text, row: HTMLElement): boolean {
+  const text = node.textContent?.trim();
+  if (text == null || text.length === 0) {
+    return false;
+  }
+  let el = node.parentElement;
+  while (el != null && el !== row) {
+    if (NON_RENDERED_TAGS.has(el.tagName) || el.tagName === 'BUTTON' || holdsControls(el)) {
+      return false;
+    }
+    el = el.parentElement;
+  }
+  return true;
+}
+
+// Climbs from a mute button to its row: the nearest ancestor that pairs mute
+// with solo AND carries a label. The pairing alone is not enough — it first
+// matches the controls wrapper, which has the buttons but no name.
+function findRowLabel(button: HTMLElement): { row: HTMLElement; label: string } | null {
+  let el = button.parentElement;
+  for (let i = 0; i < CONTAINER_SEARCH_DEPTH && el != null; i++) {
+    let hasMute = false;
+    let hasSolo = false;
+    for (const btn of el.querySelectorAll('button')) {
+      if (btn.className.includes(ACTION_CLASS_PATTERNS.mute)) {
+        hasMute = true;
+      }
+      if (btn.className.includes(ACTION_CLASS_PATTERNS.solo)) {
+        hasSolo = true;
+      }
+    }
+    if (hasMute && hasSolo) {
+      const row = el;
+      const walker = row.ownerDocument.createTreeWalker(row, NodeFilter.SHOW_TEXT, {
+        acceptNode: (node: Node): number =>
+          isRowLabel(node as Text, row) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT,
+      });
+      const first = walker.nextNode();
+      if (first != null) {
+        return { row, label: (first.textContent ?? '').trim() };
+      }
+    }
+    el = el.parentElement;
+  }
+  return null;
+}
+
+// Every track label the player is currently rendering, in row order, whatever
+// the language and whatever the stem plan. This is the diagnostic counterpart
+// to findTrackTextNode: when a lookup misses, this is what the DOM *does*
+// carry, which is the one datum needed to extend TRACK_LABELS.
+//
+// Anchored on the mute buttons rather than on text: walking every text node
+// instead sweeps up the song title, the volume readouts and __NEXT_DATA__,
+// because near the top of the tree every ancestor pairs mute with solo.
+// Verified against the live 2026 player frame — it returns the five row labels
+// and nothing else. Non-stem rows (the Smart Metronome shares the control
+// classes) are deliberately kept: filtering them would require knowing what a
+// stem is, which is the very thing in doubt.
+export function listDetectedTrackLabels(root: Document): string[] {
+  const seen = new Set<HTMLElement>();
+  const labels: string[] = [];
+  for (const button of root.querySelectorAll<HTMLElement>(`[class*="${ACTION_CLASS_PATTERNS.mute}"]`)) {
+    const hit = findRowLabel(button);
+    if (hit != null && !seen.has(hit.row)) {
+      seen.add(hit.row);
+      labels.push(hit.label);
+    }
+  }
+  return labels;
+}
+
 export function findActionButton(container: HTMLElement, classPattern: string): HTMLButtonElement | null {
   const buttons = container.querySelectorAll('button');
   for (const btn of buttons) {

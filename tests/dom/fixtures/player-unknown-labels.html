@@ -1,0 +1,42 @@
+<!doctype html>
+<!--
+  Player frame in a language TRACK_LABELS does not cover (fr). Same structure as
+  player-pt.html; the four stems render as Voix / Batterie / Basse / Autre, none
+  of which matches an entry in TRACK_LABELS. This is the M9 failure reproduced:
+  the rows are perfectly findable, the labels just are not in the table. Every
+  shortcut misses, and the diagnostic has to name what it did find.
+-->
+<html>
+  <body>
+    <div class="channels_list__aB3cD">
+      <div class="channel_line__C98CH">
+        <div class="controls_container__GkwAw">
+          <button type="button" class="controls_button__Ixo9N controls_buttonMute__HNRvx"><svg></svg></button>
+          <button type="button" class="controls_button__Ixo9N controls_buttonSolo__KzYrB"><svg></svg></button>
+        </div>
+        <p class="channel_title__dZiv2">Voix</p>
+      </div>
+      <div class="channel_line__C98CH">
+        <div class="controls_container__GkwAw">
+          <button type="button" class="controls_button__Ixo9N controls_buttonMute__HNRvx"><svg></svg></button>
+          <button type="button" class="controls_button__Ixo9N controls_buttonSolo__KzYrB"><svg></svg></button>
+        </div>
+        <p class="channel_title__dZiv2">Batterie</p>
+      </div>
+      <div class="channel_line__C98CH">
+        <div class="controls_container__GkwAw">
+          <button type="button" class="controls_button__Ixo9N controls_buttonMute__HNRvx"><svg></svg></button>
+          <button type="button" class="controls_button__Ixo9N controls_buttonSolo__KzYrB"><svg></svg></button>
+        </div>
+        <p class="channel_title__dZiv2">Basse</p>
+      </div>
+      <div class="channel_line__C98CH">
+        <div class="controls_container__GkwAw">
+          <button type="button" class="controls_button__Ixo9N controls_buttonMute__HNRvx"><svg></svg></button>
+          <button type="button" class="controls_button__Ixo9N controls_buttonSolo__KzYrB"><svg></svg></button>
+        </div>
+        <p class="channel_title__dZiv2">Autre</p>
+      </div>
+    </div>
+  </body>
+</html>

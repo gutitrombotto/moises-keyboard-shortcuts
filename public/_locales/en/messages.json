@@ -55,6 +55,10 @@
     "message": "button not found",
     "description": "In-page error toast suffix, composed as '<track> <action>: <this>'. The action (mute/solo) stays in English, matching the toast chips."
   },
+  "errDetectedLabels": {
+    "message": "This player shows:",
+    "description": "Precedes the list of track labels actually found in the player DOM, shown in the diagnostic toast when a lookup misses. The labels themselves come from the player and are never translated."
+  },
   "feedbackLink": {
     "message": "⌨️ Shortcuts feedback",
     "description": "Text of the dismissible in-player feedback pill."
@@ -70,5 +74,9 @@
   "reviewCta": {
     "message": "Rate on the Web Store ★",
     "description": "Link in the review prompt that opens the Chrome Web Store review page."
+  },
+  "reportLink": {
+    "message": "Report ↗",
+    "description": "Link in the diagnostic toast that opens the feedback form."
   }
 }
