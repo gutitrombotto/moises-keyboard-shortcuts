@@ -55,6 +55,10 @@
     "message": "no se encontró el botón",
     "description": "In-page error toast suffix, composed as '<track> <action>: <this>'. The action (mute/solo) stays in English, matching the toast chips."
   },
+  "errNoControls": {
+    "message": "Los atajos no funcionan en este reproductor",
+    "description": "Toast de error mostrado cuando el frame del reproductor no expone controles de pista reconocibles."
+  },
   "errDetectedLabels": {
     "message": "Este reproductor muestra:",
     "description": "Precede la lista de etiquetas de pista encontradas en el DOM del reproductor, en el toast de diagnóstico. Las etiquetas vienen del reproductor y no se traducen."

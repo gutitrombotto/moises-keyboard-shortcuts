@@ -55,6 +55,10 @@
     "message": "botão não encontrado",
     "description": "In-page error toast suffix, composed as '<track> <action>: <this>'. The action (mute/solo) stays in English, matching the toast chips."
   },
+  "errNoControls": {
+    "message": "Atalhos indisponíveis neste leitor",
+    "description": "Toast de erro apresentado quando o frame do leitor não expõe controlos de faixa reconhecíveis."
+  },
   "errDetectedLabels": {
     "message": "Este leitor mostra:",
     "description": "Precede a lista de etiquetas de faixa encontradas no DOM do leitor, no toast de diagnóstico. As etiquetas vêm do leitor e não são traduzidas."
