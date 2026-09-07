@@ -1,14 +1,10 @@
-import { FEEDBACK_URL } from '@/lib/config';
+import { FEEDBACK_URL, PROBE_ATTEMPTS, PROBE_DELAY_MS } from '@/lib/config';
 import { hasTrackControls } from '@/lib/dom-finder';
 import { msg } from '@/lib/i18n';
 import { retryUntil } from '@/lib/retry';
 
 const FEEDBACK_ID = 'moises-kb-feedback';
 const DISMISSED_KEY = 'moises-kb-feedback-dismissed';
-// The player mounts well after document_idle, so this one-shot probe waits far
-// longer than the shortcut retries do.
-const PROBE_ATTEMPTS = 10;
-const PROBE_DELAY_MS = 500;
 
 // localStorage can throw in sandboxed/cross-origin frames; failing open (show
 // the link) matches the pre-migration behavior.

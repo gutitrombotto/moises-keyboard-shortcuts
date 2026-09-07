@@ -46,9 +46,20 @@ describe('showActionToast', () => {
     expect(chipOf(mountedToast()).style.textDecoration).toBe('line-through');
   });
 
-  it('keeps the chip plain when the resulting state is unknown', () => {
+  // The button exposed no aria-pressed, so the click may have done nothing;
+  // the chip has to look uncertain rather than like a confirmed unmute.
+  it('marks the chip uncertain when the resulting state is unknown', () => {
     showActionToast('Vocals', 'mute', 'unknown');
-    expect(chipOf(mountedToast()).style.textDecoration).toBe('none');
+    const chip = chipOf(mountedToast());
+    expect(chip.textContent).toBe('MUTE ?');
+    expect(chip.style.textDecoration).toBe('none');
+  });
+
+  it('does not dim an unknown state the way a confirmed off state is dimmed', () => {
+    showActionToast('Vocals', 'mute', 'unknown');
+    const unknown = chipOf(mountedToast()).style.background;
+    showActionToast('Vocals', 'mute', 'off');
+    expect(chipOf(mountedToast()).style.background).not.toBe(unknown);
   });
 
   it('does not throw for tracks without a configured color', () => {

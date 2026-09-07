@@ -55,6 +55,10 @@
     "message": "botão não encontrado",
     "description": "In-page error toast suffix, composed as '<track> <action>: <this>'. The action (mute/solo) stays in English, matching the toast chips."
   },
+  "errNoControls": {
+    "message": "Atalhos indisponíveis neste player",
+    "description": "Toast de erro exibido quando o frame do player não expõe controles de faixa reconhecíveis."
+  },
   "errDetectedLabels": {
     "message": "Este player mostra:",
     "description": "Precede a lista de rótulos de faixa encontrados no DOM do player, no toast de diagnóstico. Os rótulos vêm do player e não são traduzidos."

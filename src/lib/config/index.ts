@@ -59,6 +59,13 @@ export const RETRY_ATTEMPTS = 3;
 export const RETRY_DELAY_MS = 100;
 export const DEBOUNCE_MS = 300;
 
+// The player mounts well after document_idle, so anything waiting for it to
+// exist waits far longer than a shortcut lookup does. Shared by the feedback
+// pill and by the "no controls here" check, which must not cry broken at a
+// player that is merely still loading.
+export const PROBE_ATTEMPTS = 10;
+export const PROBE_DELAY_MS = 500;
+
 // Opt-in feedback link shown once (dismissible) in the player. '' disables it.
 export const FEEDBACK_URL: string = 'https://forms.gle/rcxd1vMkeJ7VDuE97';
 

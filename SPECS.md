@@ -85,7 +85,7 @@ The page at `studio.moises.ai/player2/<id>` is only a **shell**: the actual stem
 
 ### 3.3 Frame-inert guard
 
-With `all_frames`, the script also loads in the shell frame. Before acting on any shortcut, the handler checks `hasTrackControls()` (a `[class*="buttonMute"]` probe) and stays inert in frames without track controls — otherwise every keypress on the shell would emit a false "track not found" toast (§9).
+With `all_frames`, the script also loads in the shell frame. Before acting on any shortcut, the handler checks `hasTrackControls()` (a `[class*="buttonMute"]` probe) and stays inert in frames without track controls — otherwise every keypress on the shell would emit a false "track not found" toast (§9). The absence of controls means two different things depending on the frame, so the handler tells them apart by hostname (`isPlayerFrame`): in the **shell** (`studio.moises.ai`) it is expected and stays silent; in the **player** (`studio1.moises.ai`) it means the player is no longer recognized, and that is reported once per page load — but only after a probe long enough to outlive the player's mount, so a keypress in the first seconds never cries broken. Verified live on the 2026 player: the two hosts are same-site, so the iframe shares the shell's process and the hostname is the only available discriminator.
 
 ## 4. DOM Detection Engine
 
@@ -131,7 +131,7 @@ Adding a shortcut is a config-only change: a new entry in `SHORTCUTS` (`config/i
 ## 6. Business Rules
 
 - **BR-1 — Input safety**: per §5. Covered by unit tests.
-- **BR-2 — Frame inertness**: in a frame without track controls the extension produces no toasts, no logs per keypress, and no `preventDefault`. Covered by fixture tests on the shell replica.
+- **BR-2 — Frame inertness**: in the **shell** frame the extension produces no toasts, no logs per keypress, and no `preventDefault`. Covered by fixture tests on the shell replica. Inertness is scoped to the shell on purpose: a player frame without recognizable controls reports once instead (§9), because silence there is indistinguishable from the extension not being installed.
 - **BR-3 — Exact track match**: a track lookup matches only the exact visible label; the Smart Metronome row is never operated on. Covered by fixture tests.
 - **BR-4 — Every failure is visible**: any lookup miss after retries produces an error toast naming the track and stage (§9), never a silent no-op — a musician mid-practice must know the keypress did nothing.
 - **BR-5 — Zero network**: the extension performs no fetch/XHR/beacon of any kind. The feedback link (§7) only opens a URL in a new tab when clicked.
@@ -150,7 +150,7 @@ Clicking the toolbar icon opens a 320 px static popup (vanilla TS, no framework)
 
 ### 7.2 In-page surfaces (player frame)
 
-- **Toast** — fixed top-right, auto-dismissed after 1.5 s (0.3 s fade), one at a time (a new one replaces the current). Success toasts show a track-colored accent bar, the track name, and an action chip: filled red `MUTE` / filled green `SOLO` when the toggle turned the action **on**, dimmed struck-through when it turned it **off**, dimmed plain when the resulting state is unknown. The state is predicted from the button's `aria-pressed` read **before** clicking (`nextToggleState`); buttons without it fall back to the neutral chip. Error toasts show a red ✕ icon, red-tinted text and border (§9); they are **diagnostic**: they name the failure, list the track labels the player is actually rendering (`listDetectedTrackLabels`), and offer a report link into the feedback form. Because they carry something to click they accept pointer events and **do not auto-dismiss** — they stay until the ✕, which is the one deliberate exception to the timing above.
+- **Toast** — fixed top-right, auto-dismissed after 1.5 s (0.3 s fade), one at a time (a new one replaces the current). Success toasts show a track-colored accent bar, the track name, and an action chip: filled red `MUTE` / filled green `SOLO` when the toggle turned the action **on**, dimmed struck-through when it turned it **off**, and amber with a trailing `?` when the resulting state is **unknown** — the click may have done nothing, so it must not read like a confirmed unmute. The state is predicted from the button's `aria-pressed` read **before** clicking (`nextToggleState`); buttons without it fall back to the neutral chip. Error toasts show a red ✕ icon, red-tinted text and border (§9); they are **diagnostic**: they name the failure, list the track labels the player is actually rendering (`listDetectedTrackLabels`), and offer a report link into the feedback form. Because they carry something to click they accept pointer events and **do not auto-dismiss** — they stay until the ✕, which is the one deliberate exception to the timing above.
 - **Feedback link** — opt-in, dismissible "⌨️ Shortcuts feedback" pill (bottom-left, rounded, blurred backdrop) linking to a Google Form. Shown only in the frame with track controls, once the player has mounted (probe: 10 × 500 ms). Dismissal persists in `localStorage` (`moises-kb-feedback-dismissed`); storage failures in sandboxed frames fail open. Disabled by setting `FEEDBACK_URL` to `''`.
 - **Console log** — every action and failure is logged with the `[Moises Keyboard]` prefix; this is the only diagnostic surface.
 
@@ -162,11 +162,12 @@ Manifest name/description, popup strings and in-page strings (toasts, feedback a
 
 Every failure path is a logged error plus a diagnostic toast; there are no typed exceptions because no failure crosses a module boundary — each miss resolves `null` and is surfaced at the orchestration layer (`content.ts`), which adds the same diagnostic payload to all three: the labels the player is really rendering, plus the report link.
 
-| Failure                              | Detected by                 | Console (`[Moises Keyboard]`)                      | Error toast (✕, red)                |
-| ------------------------------------ | --------------------------- | -------------------------------------------------- | ----------------------------------- |
-| Track label absent after retries     | `findTrackTextNode` → null  | `Track "<track>" not found after retries`          | `<track> track not found`           |
-| No ancestor with mute+solo buttons   | `findTrackContainer` → null | `Could not find track container for "<track>"`     | `<track> container not found`       |
-| Button class pattern matches nothing | `findActionButton` → null   | `<action> button not found in "<track>" container` | `<track> <action> button not found` |
+| Failure                              | Detected by                                                              | Console (`[Moises Keyboard]`)                         | Error toast (✕, red)                                        |
+| ------------------------------------ | ------------------------------------------------------------------------ | ----------------------------------------------------- | ----------------------------------------------------------- |
+| Track label absent after retries     | `findTrackTextNode` → null                                               | `Track "<track>" not found after retries`             | `<track> track not found`                                   |
+| No ancestor with mute+solo buttons   | `findTrackContainer` → null                                              | `Could not find track container for "<track>"`        | `<track> container not found`                               |
+| Button class pattern matches nothing | `findActionButton` → null                                                | `<action> button not found in "<track>" container`    | `<track> <action> button not found`                         |
+| Player frame exposes no controls     | `hasTrackControls` → false after the mount probe, in `studio1.moises.ai` | `Player frame exposes no recognizable track controls` | `shortcuts unavailable on this player` (once per page load) |
 
 Success path: console `<track> <action> toggled` + action toast per §7.2 (track name + state chip).
 

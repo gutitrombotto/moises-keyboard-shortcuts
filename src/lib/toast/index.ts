@@ -11,12 +11,17 @@ function chipColors(action: TrackAction, state: ToggleState): { background: stri
       ? { background: '#f87171', color: '#1a0d0d' }
       : { background: '#3ee6a0', color: '#0d1a13' };
   }
+  // 'unknown' means the button exposed no aria-pressed, so the click may have
+  // done nothing. Dimming it like a confirmed 'off' would read as success.
+  if (state === 'unknown') {
+    return { background: 'rgba(251,191,36,0.18)', color: '#fbbf24' };
+  }
   return { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.65)' };
 }
 
 function buildChip(action: TrackAction, state: ToggleState): HTMLSpanElement {
   const chip = document.createElement('span');
-  chip.textContent = action.toUpperCase();
+  chip.textContent = state === 'unknown' ? `${action.toUpperCase()} ?` : action.toUpperCase();
   Object.assign(chip.style, {
     fontSize: '10px',
     fontWeight: '800',

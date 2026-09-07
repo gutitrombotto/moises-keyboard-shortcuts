@@ -2,6 +2,8 @@ import {
   ACTION_CLASS_PATTERNS,
   DEBOUNCE_MS,
   FEEDBACK_URL,
+  PROBE_ATTEMPTS,
+  PROBE_DELAY_MS,
   RETRY_ATTEMPTS,
   RETRY_DELAY_MS,
   type TrackAction,
@@ -20,6 +22,7 @@ import { msg } from '@/lib/i18n';
 import { resolveShortcut, shouldIgnoreKeypress } from '@/lib/keyboard';
 import { log, logError } from '@/lib/logger';
 import { retryUntil } from '@/lib/retry';
+import { isPlayerFrame } from '@/lib/urls';
 import { recordUse } from '@/lib/review';
 import { showActionToast, showDiagnosticToast } from '@/lib/toast';
 
@@ -28,6 +31,32 @@ import { showActionToast, showDiagnosticToast } from '@/lib/toast';
 // failure time, not at load, so they describe the DOM the miss happened on.
 function reportFailure(message: string): void {
   showDiagnosticToast(message, listDetectedTrackLabels(document), FEEDBACK_URL);
+}
+
+// One report per page load: even if the frame check is ever wrong, the damage
+// is a single toast, never one per keypress.
+let controlsProbeStarted = false;
+
+// The player mounts late, so a keypress in the first seconds finds no controls
+// on a perfectly healthy page. Only a probe that outlives the mount can tell
+// "still loading" from "we no longer recognize this player".
+async function reportControlsUnavailable(): Promise<void> {
+  if (controlsProbeStarted) {
+    return;
+  }
+  controlsProbeStarted = true;
+
+  const found = await retryUntil(
+    () => (hasTrackControls(document) ? true : null),
+    PROBE_ATTEMPTS,
+    PROBE_DELAY_MS,
+  );
+  if (found != null) {
+    return;
+  }
+
+  logError('Player frame exposes no recognizable track controls');
+  reportFailure(msg('errNoControls'));
 }
 
 async function toggleTrackAction(trackName: string, action: TrackAction): Promise<void> {
@@ -88,10 +117,14 @@ export default defineContentScript({
         return;
       }
 
-      // The player runs inside a studio1.moises.ai iframe; with all_frames the
-      // script also loads in the shell frame. Stay inert where there are no
-      // track controls so the shell doesn't emit "track not found" toasts.
+      // With all_frames the script also loads in the shell frame, which has no
+      // track controls and must stay inert. In the player frame the same
+      // absence is a breakage, and staying quiet there is what made a broken
+      // build indistinguishable from an uninstalled one.
       if (!hasTrackControls(document)) {
+        if (isPlayerFrame(location.hostname)) {
+          void reportControlsUnavailable();
+        }
         return;
       }
 

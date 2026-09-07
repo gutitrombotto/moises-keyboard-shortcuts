@@ -90,11 +90,13 @@ leaves no trace, so the next reading is data instead of inference.
   `Vocals not found. This player shows: Vocais · Bateria · Baixo · Outro · Piano` + a report link.
   **M9 would have surfaced in a day instead of a month** — the first Brazilian user pressing `v`
   would have seen the real labels on screen.
-- **M10.2 — Loud failure in the player frame.** Replace the bare return with a discriminator: shell
-  = `studio.moises.ai`, player = the `studio1.moises.ai` iframe. In the player frame, with a
-  shortcut pressed and no controls after the probe → a loud "shortcuts unavailable on this player —
-  report" toast. The shell stays inert, as it should. **Verify the discriminator against the live
-  DOM before relying on it** — this is precisely the kind of assumption that caused M9.
+- **M10.2 — Loud failure in the player frame.** ✅ Discriminator **verified live 2026-09-07**: shell
+  = `studio.moises.ai` (top frame, zero mute/solo buttons), player = the `studio1.moises.ai` iframe
+  (5 mute + 5 solo). The two are same-site, so the iframe shares the shell's process and is not a
+  separate debug target — the hostname is the only discriminator available. The bare return is
+  replaced by that check: in the player frame, with a shortcut pressed and no controls after a
+  mount-length probe, a loud "shortcuts unavailable on this player" toast fires **once per page
+  load**; the shell stays inert.
 - **M10.3 — The report link carries context.** The feedback pill is a bare Forms URL today; a user
   writes "doesn't work" and it arrives with nothing. Prefill (`?entry.XXX=`) the extension version,
   `browser.i18n.getUILanguage()`, and the detected labels, so each report arrives pre-diagnosed.
@@ -118,6 +120,26 @@ you what broke; it does not watch them.
 **Done when:** a player with unknown labels or unknown stems produces a message that names what it
 found; a player with no recognizable controls says so instead of going quiet; and either state is
 one click from the feedback form with the context already attached.
+
+### M10 — validation matrix (gate for publishing v1.9.0)
+
+The loud player-frame failure is the one change here that can regress every user at once: if the
+frame check is ever wrong, the shell starts reporting on every keypress. Two safety valves are
+built in — the hostname check and one report per page load — and this matrix is the third.
+
+On a real song at `studio.moises.ai/player2/...` with the unpacked build:
+
+- **Shell stays inert**: no toast and no log in the top-frame console for any shortcut key, before
+  or after the player mounts. This is the regression that matters most.
+- **Healthy player is quiet**: pressing `v` immediately on load (before the player mounts) produces
+  no "unavailable" toast — the probe outlives the mount.
+- **Broken player reports**: with `ACTION_CLASS_PATTERNS.mute` edited to a string the DOM does not
+  carry, one "shortcuts unavailable" toast appears in the player frame, and only one no matter how
+  many keys are pressed.
+- **Unknown state reads as uncertain**: a toggle on a button without `aria-pressed` shows the amber
+  `MUTE ?` chip, visibly different from the dimmed struck-through "off" chip.
+- **Diagnostic content**: a track missing from `TRACK_LABELS` produces a toast naming the labels the
+  player really renders, with a working report link, and it stays until dismissed.
 
 ## Post-v1.5 (backlog)
 
