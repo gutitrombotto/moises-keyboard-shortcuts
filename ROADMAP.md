@@ -18,7 +18,7 @@ Updated at every phase close. ✅ merged · 🔍 in review/validation · ⬜ not
 | M7 — Publish v1.5.0                | ✅ 2026-08-18  | **Published** — approved by the CWS and auto-published (later superseded by v1.7.0). Full listing normalized: EN+ES descriptions, category Productivity→Tools, 5+5 screenshots, homepage URL, single purpose + host justifications rewritten; data declaration untouched (none collected)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | M8 — pt locale + review prompt     | ✅ 2026-08-25  | **Published 2026-08-25** as part of v1.7.0 — approved and auto-published; the public listing now renders in English + español + português (Brasil). Driven by CWS analytics: ~66% of weekly users speak Portuguese (pt-BR 50% + pt-PT 16%) yet there is no pt listing (only EN+ES), and the item has **0 ratings**. Add `_locales/pt_BR` (Brazil — tailored copy + unlocks the Brazil listing) and base `_locales/pt` (European copy; covers pt-PT and generic pt by fallback) + localize the in-page toasts/feedback strings, and add a non-nagging "rate on the Web Store" prompt after 5 successful uses. Targets the two leaks in the funnel: language coverage and social proof/churn (uninstall/install ≈ 37%)                                                                                                          |
 | M9 — Localized track detection fix | ✅ 2026-08-25  | **Published 2026-08-25** in v1.7.0, verified live on the real pt player before submitting. **Critical bug found while validating M8 on the real player.** The player localizes track labels (pt: Vocais/Bateria/Baixo/Outro; the DOM has no language-independent stem id), but `findTrackTextNode` matched the English names exactly → **shortcuts silently broken for every non-English Moises UI** (≈66% pt + es of the base). Almost certainly the main driver of the 37% churn and 0 ratings, and it shipped in every version since v1.3. Fix: `TRACK_LABELS` dict (en/pt verified live, es both spellings) + case-insensitive label match in `dom-finder`; new real-DOM fixtures (`player-pt`/`player-es`). Bumps to v1.7.0 and **gates the publish** — shipping the pt listing without this would invite 1-star reviews |
-| M10 — Fail loudly                  | ⬜ not started | Next up. The v1.7.0 measurement (2026-09-07) found no retention improvement even though the base is fully on 1.7.0.0, so the churn cause is still unknown. Make broken states legible — unrecognized player, failed toggle — and route them into the feedback pill, so the next reading is data instead of inference. Gates further feature work; see the backlog                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| M10 — Fail loudly                  | ⬜ not started | Next up. The v1.7.0 measurement (2026-09-07) found no retention improvement even though the base is fully on 1.7.0.0, so the churn cause is still unknown. Make broken states legible — unrecognized player, failed toggle — and route them into the feedback pill, so the next reading is data instead of inference. Gates further feature work; spec + validation matrix below                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ## M5 — Manual validation matrix (gate for legacy removal)
 
@@ -57,10 +57,72 @@ Data rationale (CWS analytics, 30 days to 2026-08-23): weekly users are Brazil 5
 - **Review prompt**: after 5 successful toggles (persisted count), surface a one-time, dismissible "enjoying it? rate on the Web Store ★" pill linking to the CWS review URL, reusing the feedback-pill pattern and its `localStorage`-dismissed convention. Stays silent until earned and never reappears once dismissed/rated. Adds two `localStorage` keys (a use counter + a done flag) — still a UI preference the extension generates, so the "no user data collected" declaration is unchanged, but re-read hard rule 3 of `/store-check` before touching the privacy tab.
 - **Done when:** the Portuguese listing(s) appear with copy populated; toasts/feedback render localized in es and pt (verified via the `LANGUAGE`-env method); the review prompt fires only after the threshold and never nags. Locale coverage (pt-BR/pt-PT/es-LatAm) already confirmed. ✅ Done 2026-08-25: v1.7.0 live, listing languages = English / español / português (Brasil).
 
+## M10 — Fail loudly (spec + validation matrix)
+
+The v1.7.0 measurement (2026-09-07) closed the M9 hypothesis without replacing it: the base is
+fully on 1.7.0.0 and retention did not move, so **why users leave is still unknown**. M10 stops
+guessing. It is not a feature — it is closing the four mouths through which a failure currently
+leaves no trace, so the next reading is data instead of inference.
+
+**The silent failures, as the code stands today:**
+
+1. `src/entrypoints/content.ts:85` — `if (!hasTrackControls(document)) return;` is a bare return.
+   The guard exists for a good reason (the script also runs in the shell frame, which would
+   otherwise emit "track not found" toasts), but it **swallows the real breakage too**: if Moises
+   renames the `buttonMute` class, every keypress in the player frame does nothing at all — no
+   toast, no log, indistinguishable from "the extension isn't installed". Same class of bug as M9,
+   one level up, still uncovered.
+2. `SHORTCUTS` in `src/lib/config/index.ts` is fixed at four stems. A user on a 5+ stem plan has no
+   way to learn that Piano and Guitar have no key; if that plan also renders the four under other
+   labels, it falls into (3).
+3. The error toast does not diagnose. `Vocals: <not found>` uses the canonical English name — a pt
+   user reads "Vocais" in the player and "Vocals" in the toast. It says that something failed, not
+   what, and the one datum needed to fix it (which labels the DOM _does_ carry) is thrown away.
+4. `nextToggleState` returns `'unknown'` when the button exposes no `aria-pressed`, and the toast
+   paints the neutral chip — which reads exactly like a successful unmute. A click that may have
+   done nothing looks like success.
+
+**What to build, in order:**
+
+- **M10.1 — Diagnostic error toast.** The highest-yield piece. New `listDetectedTrackLabels(document)`
+  in `dom-finder`: walk the elements carrying the mute-button class, climb to each container, read
+  its label text node. That yields the player's real stem list. The toast becomes
+  `Vocals not found. This player shows: Vocais · Bateria · Baixo · Outro · Piano` + a report link.
+  **M9 would have surfaced in a day instead of a month** — the first Brazilian user pressing `v`
+  would have seen the real labels on screen.
+- **M10.2 — Loud failure in the player frame.** Replace the bare return with a discriminator: shell
+  = `studio.moises.ai`, player = the `studio1.moises.ai` iframe. In the player frame, with a
+  shortcut pressed and no controls after the probe → a loud "shortcuts unavailable on this player —
+  report" toast. The shell stays inert, as it should. **Verify the discriminator against the live
+  DOM before relying on it** — this is precisely the kind of assumption that caused M9.
+- **M10.3 — The report link carries context.** The feedback pill is a bare Forms URL today; a user
+  writes "doesn't work" and it arrives with nothing. Prefill (`?entry.XXX=`) the extension version,
+  `browser.i18n.getUILanguage()`, and the detected labels, so each report arrives pre-diagnosed.
+  ⚠️ The only privacy-touching part: **stem labels only** (a closed set of UI words) + version +
+  language. **Never the song name, never the URL.** Re-read hard rule 3 of `/store-check` before
+  touching the privacy tab — the "no user data collected" declaration can and must survive this,
+  deliberately rather than by accident.
+- **M10.4 — Popup as a diagnostic.** Today it is a cheat-sheet with a green/gray status. Have it
+  report: player detected ✓/✗, controls detected ✓/✗, stems found, and which of them hold a key —
+  so a 5-stem user sees "Piano — no shortcut" immediately. Done with `tabs.sendMessage` to the
+  player frame, which already runs the content script: **no new permissions** (no `scripting`,
+  which would force the listing justifications to be rewritten).
+- **M10.5 — Make `'unknown'` visible**, and add fixtures: a 5+ stem player and one with the mute
+  class renamed, so the loud paths are covered (CODESTYLE §Testing — save the real page first).
+
+**Explicitly not in M10: telemetry.** It is the tempting answer and the wrong one here — it changes
+the privacy declaration, drags the item back through CWS review, and at this volume (~89 weekly
+users) a working report channel yields more signal than an event funnel. M10 lets the user _tell_
+you what broke; it does not watch them.
+
+**Done when:** a player with unknown labels or unknown stems produces a message that names what it
+found; a player with no recognizable controls says so instead of going quiet; and either state is
+one click from the feedback form with the context already attached.
+
 ## Post-v1.5 (backlog)
 
 - ~~**Measure the effect of v1.7.0**~~ — measured 2026-09-07. **The detection hypothesis did not hold.** The rollout is not the excuse: the version chart shows the base essentially fully on 1.7.0.0 within a week of release, so whatever the fix was going to do, it has had the chance to do it. Against that, retention (net recurring users won per install) did **not** improve over the pre-release baseline, pt-BR is still the dominant language among uninstalls — well above its share of installs — and the review prompt has still produced **0 ratings**. Discovery is the one thing clearly up (impressions and listing views both grew), so the funnel leak is after the install, not before it. Caveat kept on the record: the 30-day window straddles the release (about half pre-fix), and monthly volume here is small, so this reads as “no improvement detected” rather than “the fix did nothing”. Two follow-ups, both of which hold either way: **M10 below**, and a clean re-read around 2026-09-22 once the window is fully post-fix.
-- **M10 — fail loudly**: stop inferring why people leave and make the extension say when it is broken. Today a failed toggle is a toast the user may not connect to anything, and a player DOM we do not recognize looks identical to a user who simply changed their mind — so churn arrives with no diagnosis attached. Surface unrecognized-player and failed-toggle states explicitly, and give that state a one-click route into the existing feedback pill. This is the only item in the backlog that converts inference into data; **it comes before any new feature work**, including the Pro exploration below.
+- ~~**M10 — fail loudly**~~ → promoted to **M10** above (the v1.7.0 measurement made it the gate, not a someday).
 - **Premium exploration (Pro tier)**: define what musicians would pay for before building any sales surface. Leading candidates, roughly by value/effort: configurable shortcuts (below), keyboard control of the player's **speed and pitch** (the practice loop: slow down → repeat), per-track **volume nudges**, **scenes/presets** ("practice mode": one key = mute vocals + solo drums), and **MIDI foot-pedal support** via WebMIDI (hands-free control while playing — strongest willingness-to-pay signal). Branding caution: monetizing under the "Moises" name invites a trademark complaint from Music.AI; a paid tier likely needs its own name ("… for Moises.ai" as descriptor).
 - **Sales/landing page in Notion**: a public Notion page as the zero-maintenance marketing surface (what it does, GIF/screenshots, install CTA, changelog, Pro pitch when it exists). Cheap to stand up, no domain or Lovable project needed; revisit a real site (Cartly-style Lovable + checkout) only when there is a Pro tier to sell.
 - **Configurable shortcuts**: options page to remap keys and add tracks without editing code. First real UI — adopts React + `storage` permission; revisit SPECS §2 stack table when it lands.
