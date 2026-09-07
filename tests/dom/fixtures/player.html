@@ -1,16 +1,31 @@
 <!doctype html>
 <!--
   Faithful replica of the studio1.moises.ai player2 frame (v1.3-era DOM),
-  reconstructed from the invariants the extension relies on (SPECS §4):
+  reconstructed from the invariants the extension relies on (SPECS §4) and
+  reconciled with a live capture of the 2026 frame (2026-09-07):
   hashed CSS-module classes with stable prefixes (controls_buttonMute__*,
   controls_buttonSolo__*), SVG-only buttons, track labels as plain text nodes,
-  and a Smart Metronome row that shares the control classes. Replace with a
-  saved copy of the real frame if Moises changes its DOM.
+  and a Smart Metronome row that shares the control classes. It also carries the
+  noise the real frame carries — the GTM <noscript>, the song title and the
+  __NEXT_DATA__ blob, all confirmed in the live capture — because a diagnostic
+  that walks text nodes sweeps all of it up unless it is anchored on the
+  controls instead.
+  Replace with a saved copy of the real frame if Moises changes its DOM.
 -->
 <html>
   <body>
+    <noscript
+      ><iframe
+        src="https://www.googletagmanager.com/ns.html?id=GTM-56LD7X6"
+        height="0"
+        width="0"
+        title="moises"
+        style="display: none; visibility: hidden"
+      ></iframe
+    ></noscript>
     <div id="__next">
       <div class="player_container__Qw3rT">
+        <h1 class="player_songTitle__Lp2Kd">Tan Bionica - Obsesionario En La Mayor</h1>
         <div class="controls_trackList__9dK2m">
           <div class="controls_track__aB3cD" data-track="vocals">
             <div class="controls_trackInfo__xY9zW">
@@ -87,5 +102,13 @@
         </div>
       </div>
     </div>
+    <script id="__NEXT_DATA__" type="application/json">
+      {
+        "props": { "pageProps": { "env": "production" } },
+        "page": "/player2/[taskId]",
+        "query": { "shellDisabled": "true", "taskId": "011af0b7" },
+        "buildId": "ZFTWofwIfIfVnMronoi0X"
+      }
+    </script>
   </body>
 </html>

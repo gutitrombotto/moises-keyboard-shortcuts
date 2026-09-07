@@ -145,9 +145,11 @@ describe('findActionButton', () => {
 });
 
 describe('listDetectedTrackLabels', () => {
-  it('lists one label per row, skipping the subtitle that shares the row', () => {
-    // "Lead" sits in the Vocals row: it is a second text node in an already
-    // claimed container, not a track of its own.
+  // Matches what the live 2026 player frame returns (verified 2026-09-07): the
+  // five row labels and nothing else. The fixture carries the same noise the
+  // real frame does — song title, GTM <noscript>, __NEXT_DATA__ — all of which
+  // a text-anchored walk sweeps up.
+  it('lists one label per row and nothing else', () => {
     expect(listDetectedTrackLabels(loadFixture('player'))).toEqual([
       'Vocals',
       'Drums',
@@ -155,6 +157,17 @@ describe('listDetectedTrackLabels', () => {
       'Other',
       'Smart Metronome',
     ]);
+  });
+
+  it('never reports the song title, the tag manager or page data', () => {
+    const labels = listDetectedTrackLabels(loadFixture('player'));
+    expect(labels.some((l) => l.includes('Obsesionario'))).toBe(false);
+    expect(labels.some((l) => l.includes('__N_SSP') || l.includes('buildId'))).toBe(false);
+    expect(labels.some((l) => l.includes('googletagmanager'))).toBe(false);
+  });
+
+  it('skips a subtitle that shares the row with the label', () => {
+    expect(listDetectedTrackLabels(loadFixture('player'))).not.toContain('Lead');
   });
 
   it('reports the localized labels the player actually renders', () => {
