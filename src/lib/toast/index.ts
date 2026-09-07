@@ -1,4 +1,5 @@
 import { DEFAULT_TRACK_COLOR, TRACK_COLORS, type ToggleState, type TrackAction } from '@/lib/config';
+import { msg } from '@/lib/i18n';
 
 const TOAST_ID = 'moises-kb-toast';
 const TOAST_VISIBLE_MS = 1500;
@@ -58,9 +59,16 @@ function buildErrorIcon(): HTMLSpanElement {
   return icon;
 }
 
+interface ToastOptions {
+  // An interactive toast carries something to click (the report link), so it
+  // must accept pointer events and must not fade out from under the user: it
+  // stays until dismissed. Plain toasts keep the SPECS §7 timing.
+  interactive?: boolean;
+}
+
 // One toast at a time; a new one replaces the current. Timing is part of the
 // behavior contract (SPECS §7): 1.5 s visible, 0.3 s fade.
-function mountToast(children: HTMLElement[], borderColor: string): void {
+function mountToast(children: HTMLElement[], borderColor: string, options: ToastOptions = {}): void {
   const existing = document.getElementById(TOAST_ID);
   if (existing != null) {
     existing.remove();
@@ -73,9 +81,10 @@ function mountToast(children: HTMLElement[], borderColor: string): void {
     top: '20px',
     right: '20px',
     display: 'flex',
-    alignItems: 'center',
+    alignItems: options.interactive === true ? 'flex-start' : 'center',
     gap: '10px',
     padding: '9px 14px 9px 10px',
+    maxWidth: options.interactive === true ? '360px' : 'none',
     borderRadius: '10px',
     background: 'rgba(19,25,34,0.92)',
     border: `1px solid ${borderColor}`,
@@ -85,7 +94,7 @@ function mountToast(children: HTMLElement[], borderColor: string): void {
     fontSize: '13px',
     fontFamily: 'system-ui, sans-serif',
     zIndex: '999999',
-    pointerEvents: 'none',
+    pointerEvents: options.interactive === true ? 'auto' : 'none',
     opacity: '0',
     transition: 'opacity 0.3s ease',
   });
@@ -97,6 +106,10 @@ function mountToast(children: HTMLElement[], borderColor: string): void {
   requestAnimationFrame(() => {
     toast.style.opacity = '1';
   });
+
+  if (options.interactive === true) {
+    return;
+  }
 
   setTimeout(() => {
     toast.style.opacity = '0';
@@ -113,9 +126,52 @@ export function showActionToast(track: string, action: TrackAction, state: Toggl
   mountToast([buildAccentBar(track), name, buildChip(action, state)], 'rgba(255,255,255,0.1)');
 }
 
-export function showErrorToast(message: string): void {
+function buildDismiss(): HTMLSpanElement {
+  const close = document.createElement('span');
+  close.textContent = '\u2715';
+  close.title = msg('feedbackDismiss');
+  Object.assign(close.style, {
+    cursor: 'pointer',
+    opacity: '0.7',
+    fontSize: '11px',
+    lineHeight: '18px',
+    flexShrink: '0',
+  });
+  close.addEventListener('click', () => {
+    document.getElementById(TOAST_ID)?.remove();
+  });
+  return close;
+}
+
+// The toast a failure produces. `detected` is what the player actually renders
+// (see listDetectedTrackLabels): naming it turns "it didn't work" into a report
+// that already carries its own diagnosis. Both extras degrade gracefully — an
+// empty list or an empty reportUrl simply drops that line.
+export function showDiagnosticToast(message: string, detected: string[], reportUrl: string): void {
+  const column = document.createElement('div');
+  Object.assign(column.style, { display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '0' });
+
   const text = document.createElement('span');
   text.textContent = message;
   text.style.color = '#fca5a5';
-  mountToast([buildErrorIcon(), text], 'rgba(248,113,113,0.4)');
+  column.appendChild(text);
+
+  if (detected.length > 0) {
+    const labels = document.createElement('span');
+    labels.textContent = `${msg('errDetectedLabels')} ${detected.join(' \u00b7 ')}`;
+    Object.assign(labels.style, { color: 'rgba(238,242,247,0.75)', fontSize: '12px' });
+    column.appendChild(labels);
+  }
+
+  if (reportUrl !== '') {
+    const link = document.createElement('a');
+    link.textContent = msg('reportLink');
+    link.href = reportUrl;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    Object.assign(link.style, { color: '#8ab4ff', textDecoration: 'none', fontSize: '12px' });
+    column.appendChild(link);
+  }
+
+  mountToast([buildErrorIcon(), column, buildDismiss()], 'rgba(248,113,113,0.4)', { interactive: true });
 }

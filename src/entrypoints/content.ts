@@ -1,6 +1,7 @@
 import {
   ACTION_CLASS_PATTERNS,
   DEBOUNCE_MS,
+  FEEDBACK_URL,
   RETRY_ATTEMPTS,
   RETRY_DELAY_MS,
   type TrackAction,
@@ -11,6 +12,7 @@ import {
   findTrackContainer,
   findTrackTextNode,
   hasTrackControls,
+  listDetectedTrackLabels,
   nextToggleState,
 } from '@/lib/dom-finder';
 import { surfaceFeedbackLink } from '@/lib/feedback';
@@ -19,7 +21,14 @@ import { resolveShortcut, shouldIgnoreKeypress } from '@/lib/keyboard';
 import { log, logError } from '@/lib/logger';
 import { retryUntil } from '@/lib/retry';
 import { recordUse } from '@/lib/review';
-import { showActionToast, showErrorToast } from '@/lib/toast';
+import { showActionToast, showDiagnosticToast } from '@/lib/toast';
+
+// Every failure path reports the same way: what broke, plus the labels this
+// player is really rendering, plus a route to say so. The labels are read at
+// failure time, not at load, so they describe the DOM the miss happened on.
+function reportFailure(message: string): void {
+  showDiagnosticToast(message, listDetectedTrackLabels(document), FEEDBACK_URL);
+}
 
 async function toggleTrackAction(trackName: string, action: TrackAction): Promise<void> {
   const classPattern = ACTION_CLASS_PATTERNS[action];
@@ -31,14 +40,14 @@ async function toggleTrackAction(trackName: string, action: TrackAction): Promis
   );
   if (textNode == null) {
     logError(`Track "${trackName}" not found after retries`);
-    showErrorToast(`${trackName}: ${msg('errTrackNotFound')}`);
+    reportFailure(`${trackName}: ${msg('errTrackNotFound')}`);
     return;
   }
 
   const container = await retryUntil(() => findTrackContainer(textNode), RETRY_ATTEMPTS, RETRY_DELAY_MS);
   if (container == null) {
     logError(`Could not find track container for "${trackName}"`);
-    showErrorToast(`${trackName}: ${msg('errContainerNotFound')}`);
+    reportFailure(`${trackName}: ${msg('errContainerNotFound')}`);
     return;
   }
 
@@ -49,7 +58,7 @@ async function toggleTrackAction(trackName: string, action: TrackAction): Promis
   );
   if (button == null) {
     logError(`${action} button not found in "${trackName}" container`);
-    showErrorToast(`${trackName} ${action}: ${msg('errButtonNotFound')}`);
+    reportFailure(`${trackName} ${action}: ${msg('errButtonNotFound')}`);
     return;
   }
 

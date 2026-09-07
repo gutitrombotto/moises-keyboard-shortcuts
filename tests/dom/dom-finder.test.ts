@@ -6,6 +6,7 @@ import {
   findTrackContainer,
   findTrackTextNode,
   hasTrackControls,
+  listDetectedTrackLabels,
   nextToggleState,
 } from '@/lib/dom-finder';
 import { loadFixture } from './load-fixture';
@@ -140,5 +141,47 @@ describe('findActionButton', () => {
     });
     button.click();
     expect(clicked).toBe(true);
+  });
+});
+
+describe('listDetectedTrackLabels', () => {
+  it('lists one label per row, skipping the subtitle that shares the row', () => {
+    // "Lead" sits in the Vocals row: it is a second text node in an already
+    // claimed container, not a track of its own.
+    expect(listDetectedTrackLabels(loadFixture('player'))).toEqual([
+      'Vocals',
+      'Drums',
+      'Bass',
+      'Other',
+      'Smart Metronome',
+    ]);
+  });
+
+  it('reports the localized labels the player actually renders', () => {
+    expect(listDetectedTrackLabels(loadFixture('player-pt'))).toEqual([
+      'Vocais',
+      'Bateria',
+      'Baixo',
+      'Outro',
+      'Metrônomo Inteligente',
+    ]);
+  });
+
+  it('includes stems that have no shortcut mapped', () => {
+    const labels = listDetectedTrackLabels(loadFixture('player-5stem'));
+    expect(labels).toContain('Piano');
+    expect(labels).toContain('Guitarra');
+    expect(labels).toHaveLength(6);
+  });
+
+  it('names the labels when every lookup misses — the M9 failure', () => {
+    const doc = loadFixture('player-unknown-labels');
+    expect(findTrackTextNode(doc, 'Vocals')).toBeNull();
+    expect(findTrackTextNode(doc, 'Drums')).toBeNull();
+    expect(listDetectedTrackLabels(doc)).toEqual(['Voix', 'Batterie', 'Basse', 'Autre']);
+  });
+
+  it('finds nothing on the shell frame', () => {
+    expect(listDetectedTrackLabels(loadFixture('shell'))).toEqual([]);
   });
 });

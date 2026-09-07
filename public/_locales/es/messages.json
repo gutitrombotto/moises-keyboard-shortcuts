@@ -55,6 +55,10 @@
     "message": "no se encontró el botón",
     "description": "In-page error toast suffix, composed as '<track> <action>: <this>'. The action (mute/solo) stays in English, matching the toast chips."
   },
+  "errDetectedLabels": {
+    "message": "Este reproductor muestra:",
+    "description": "Precede la lista de etiquetas de pista encontradas en el DOM del reproductor, en el toast de diagnóstico. Las etiquetas vienen del reproductor y no se traducen."
+  },
   "feedbackLink": {
     "message": "⌨️ Sugerencias de atajos",
     "description": "Text of the dismissible in-player feedback pill."
@@ -70,5 +74,9 @@
   "reviewCta": {
     "message": "Calificá en el Web Store ★",
     "description": "Link in the review prompt that opens the Chrome Web Store review page."
+  },
+  "reportLink": {
+    "message": "Reportar ↗",
+    "description": "Enlace del toast de diagnóstico que abre el formulario de sugerencias."
   }
 }

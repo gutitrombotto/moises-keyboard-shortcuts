@@ -62,6 +62,45 @@ export function findTrackContainer(textNode: Text): HTMLElement | null {
   return null;
 }
 
+// Every track label the player is currently rendering, in document order, one
+// per track row — whatever the language and whatever the stem plan. This is the
+// diagnostic counterpart to findTrackTextNode: when a lookup misses, this is
+// what the DOM *does* carry, which is the one datum needed to fix TRACK_LABELS.
+//
+// A row is identified exactly as findTrackContainer defines it, so the two can
+// never disagree; the first qualifying text node in a row is its label (a
+// subtitle like "Lead" sits after the name and is skipped as a duplicate row).
+// Text inside buttons is never a label. Rows that are not stems (the Smart
+// Metronome shares the control classes) are deliberately included: filtering
+// them would require knowing what a stem is, which is the very thing in doubt.
+export function listDetectedTrackLabels(root: Document): string[] {
+  const walker = root.createTreeWalker(root.body, NodeFilter.SHOW_TEXT, {
+    acceptNode(node: Node): number {
+      const text = node.textContent?.trim();
+      if (text == null || text.length === 0) {
+        return NodeFilter.FILTER_REJECT;
+      }
+      if (node.parentElement?.closest('button') != null) {
+        return NodeFilter.FILTER_REJECT;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    },
+  });
+
+  const seen = new Set<HTMLElement>();
+  const labels: string[] = [];
+  let node = walker.nextNode();
+  while (node != null) {
+    const container = findTrackContainer(node as Text);
+    if (container != null && !seen.has(container)) {
+      seen.add(container);
+      labels.push((node.textContent ?? '').trim());
+    }
+    node = walker.nextNode();
+  }
+  return labels;
+}
+
 export function findActionButton(container: HTMLElement, classPattern: string): HTMLButtonElement | null {
   const buttons = container.querySelectorAll('button');
   for (const btn of buttons) {

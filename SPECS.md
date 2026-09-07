@@ -150,17 +150,17 @@ Clicking the toolbar icon opens a 320 px static popup (vanilla TS, no framework)
 
 ### 7.2 In-page surfaces (player frame)
 
-- **Toast** — fixed top-right, auto-dismissed after 1.5 s (0.3 s fade), one at a time (a new one replaces the current). Success toasts show a track-colored accent bar, the track name, and an action chip: filled red `MUTE` / filled green `SOLO` when the toggle turned the action **on**, dimmed struck-through when it turned it **off**, dimmed plain when the resulting state is unknown. The state is predicted from the button's `aria-pressed` read **before** clicking (`nextToggleState`); buttons without it fall back to the neutral chip. Error toasts show a red ✕ icon, red-tinted text and border (§9).
+- **Toast** — fixed top-right, auto-dismissed after 1.5 s (0.3 s fade), one at a time (a new one replaces the current). Success toasts show a track-colored accent bar, the track name, and an action chip: filled red `MUTE` / filled green `SOLO` when the toggle turned the action **on**, dimmed struck-through when it turned it **off**, dimmed plain when the resulting state is unknown. The state is predicted from the button's `aria-pressed` read **before** clicking (`nextToggleState`); buttons without it fall back to the neutral chip. Error toasts show a red ✕ icon, red-tinted text and border (§9); they are **diagnostic**: they name the failure, list the track labels the player is actually rendering (`listDetectedTrackLabels`), and offer a report link into the feedback form. Because they carry something to click they accept pointer events and **do not auto-dismiss** — they stay until the ✕, which is the one deliberate exception to the timing above.
 - **Feedback link** — opt-in, dismissible "⌨️ Shortcuts feedback" pill (bottom-left, rounded, blurred backdrop) linking to a Google Form. Shown only in the frame with track controls, once the player has mounted (probe: 10 × 500 ms). Dismissal persists in `localStorage` (`moises-kb-feedback-dismissed`); storage failures in sandboxed frames fail open. Disabled by setting `FEEDBACK_URL` to `''`.
 - **Console log** — every action and failure is logged with the `[Moises Keyboard]` prefix; this is the only diagnostic surface.
 
 ## 8. Localization
 
-Manifest name/description and all popup strings come from `public/_locales/{en,es}/messages.json` (`default_locale: en`). The extension name stays untranslated in both locales — the brand is what users search. In-page strings (toasts) are English-only: they are the track/action names themselves, not UI copy worth translating.
+Manifest name/description, popup strings and in-page strings (toasts, feedback and review pills) all come from `public/_locales/{en,es,pt,pt_BR}/messages.json` (`default_locale: en`), resolved through the shared `msg()` helper. The extension name stays untranslated in every locale — the brand is what users search. Track and action names are **not** translated: they come from the player DOM (or match the MUTE/SOLO chips), so only the words around them are localized. Every key must exist in all four locales; WXT types the key union from `en`, so a key missing elsewhere type-checks but renders empty.
 
 ## 9. Error / Toast Taxonomy
 
-Every failure path is a logged error plus an error toast; there are no typed exceptions because no failure crosses a module boundary — each miss resolves `null` and is surfaced at the orchestration layer (`content.ts`).
+Every failure path is a logged error plus a diagnostic toast; there are no typed exceptions because no failure crosses a module boundary — each miss resolves `null` and is surfaced at the orchestration layer (`content.ts`), which adds the same diagnostic payload to all three: the labels the player is really rendering, plus the report link.
 
 | Failure                              | Detected by                 | Console (`[Moises Keyboard]`)                      | Error toast (✕, red)                |
 | ------------------------------------ | --------------------------- | -------------------------------------------------- | ----------------------------------- |
@@ -170,7 +170,7 @@ Every failure path is a logged error plus an error toast; there are no typed exc
 
 Success path: console `<track> <action> toggled` + action toast per §7.2 (track name + state chip).
 
-A "track not found" toast on a real player frame is the product's breakage signal: it means Moises renamed a track label or rehashed beyond the class prefixes (§4), and `ACTION_CLASS_PATTERNS`/fixtures need updating.
+A "track not found" toast on a real player frame is the product's breakage signal: it means Moises renamed a track label or rehashed beyond the class prefixes (§4), and `TRACK_LABELS`/`ACTION_CLASS_PATTERNS`/fixtures need updating. The toast prints the labels it did find precisely so that signal reaches us as a report instead of a silent uninstall — that list is the exact input needed to extend `TRACK_LABELS`.
 
 ## 10. Out of Scope (v1.5) / Deferred
 
