@@ -143,6 +143,17 @@ On a real song at `studio.moises.ai/player2/...` with the unpacked build:
 - **Diagnostic content**: a track missing from `TRACK_LABELS` produces a toast naming the labels the
   player really renders, with a working report link, and it stays until dismissed.
 
+## M11 — In-player cheat-sheet card
+
+The cheat-sheet only existed in the toolbar popup, which most users never open, so the shortcuts stayed invisible to the people who had already installed the extension. A card in the player itself puts them where the user is looking.
+
+- Top-centre, rounded, 1Password-style: collapsed it leads with a single key to try rather than the whole table, because reading one key and pressing it is the shortest path to the first use.
+- Expands to the full table, sharing `collectTrackKeys` with the popup so the two can never disagree, and lists the player's own keys (Space = play/pause, verified live) in their own section — advertised, never intercepted, with a test pinning that `resolveShortcut` returns null for them.
+- Persists until the ✕. Deliberately **not** retired by usage: the user asked for a permanent surface, not an onboarding hint.
+- Absorbs the feedback and review pills. The extension had grown three floating surfaces; the review one sat on top of the player's Lyrics/Chords/Sections buttons, and its gate — five successful toggles — may simply never open for someone who never learned the keys, which fits the **0 ratings** the measurement found. Both now live in the card: the footer always offers them, and the earned ask takes over the collapsed line instead of spawning a pill.
+- The stars link to the store and never simulate a captured vote; the ✕ silences the ask along with the card, because insisting after a "no" is what gets an extension uninstalled.
+- **Done when:** the card renders in the player, expands and collapses, stays dismissed across loads, and nothing of ours overlaps the player's controls. ✅ Verified on the live player 2026-09-07 (screenshots in `docs/pr-media/`).
+
 ## Post-v1.5 (backlog)
 
 - ~~**Measure the effect of v1.7.0**~~ — measured 2026-09-07. **The detection hypothesis did not hold.** The rollout is not the excuse: the version chart shows the base essentially fully on 1.7.0.0 within a week of release, so whatever the fix was going to do, it has had the chance to do it. Against that, retention (net recurring users won per install) did **not** improve over the pre-release baseline, pt-BR is still the dominant language among uninstalls — well above its share of installs — and the review prompt has still produced **0 ratings**. Discovery is the one thing clearly up (impressions and listing views both grew), so the funnel leak is after the install, not before it. Caveat kept on the record: the 30-day window straddles the release (about half pre-fix), and monthly volume here is small, so this reads as “no improvement detected” rather than “the fix did nothing”. Two follow-ups, both of which hold either way: **M10 below**, and a clean re-read around 2026-09-22 once the window is fully post-fix.

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { SHORTCUTS } from '@/lib/config';
 import { resolveShortcut, shouldIgnoreKeypress, type KeypressLike } from '@/lib/keyboard';
+import { PLAYER_NATIVE_SHORTCUTS } from '@/lib/shortcuts';
 
 function press(key: string, modifiers: Partial<KeypressLike> = {}): KeypressLike {
   return { key, ctrlKey: false, metaKey: false, altKey: false, ...modifiers };
@@ -64,5 +65,14 @@ describe('shouldIgnoreKeypress (input safety)', () => {
     expect(shouldIgnoreKeypress(null)).toBe(false);
     expect(shouldIgnoreKeypress(document.body)).toBe(false);
     expect(shouldIgnoreKeypress(document.createElement('button'))).toBe(false);
+  });
+});
+
+// The cheat-sheet advertises these as the player's own, so resolveShortcut must
+// return null for them: anything else would swallow play/pause.
+describe('player-native keys are never captured', () => {
+  it.each(PLAYER_NATIVE_SHORTCUTS.map((n) => n.key))('lets %s reach the player', (key) => {
+    const eventKey = key === 'Space' ? ' ' : key;
+    expect(resolveShortcut({ key: eventKey, ctrlKey: false, metaKey: false, altKey: false })).toBeNull();
   });
 });

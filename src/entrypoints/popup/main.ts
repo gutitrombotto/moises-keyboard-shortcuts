@@ -1,29 +1,9 @@
 import { browser } from 'wxt/browser';
 
-import { DEFAULT_TRACK_COLOR, FEEDBACK_URL, SHORTCUTS, TRACK_COLORS } from '@/lib/config';
+import { DEFAULT_TRACK_COLOR, FEEDBACK_URL, TRACK_COLORS } from '@/lib/config';
+import { collectTrackKeys } from '@/lib/shortcuts';
 import { msg } from '@/lib/i18n';
 import { isPlayerUrl, PLAYER_URL } from '@/lib/urls';
-
-interface TrackKeys {
-  track: string;
-  muteKey: string;
-  soloKey: string | null;
-}
-
-// One row per track, in SHORTCUTS insertion order; the solo key is looked up
-// so config-only additions (e.g. Piano) appear here without touching the popup.
-function collectTrackKeys(): TrackKeys[] {
-  const entries = Object.entries(SHORTCUTS);
-  const rows: TrackKeys[] = [];
-  for (const [key, shortcut] of entries) {
-    if (shortcut.action !== 'mute') {
-      continue;
-    }
-    const solo = entries.find(([, s]) => s.track === shortcut.track && s.action === 'solo');
-    rows.push({ track: shortcut.track, muteKey: key, soloKey: solo?.[0] ?? null });
-  }
-  return rows;
-}
 
 function getEl(id: string): HTMLElement {
   const el = document.getElementById(id);
