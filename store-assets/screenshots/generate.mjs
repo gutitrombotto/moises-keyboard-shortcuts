@@ -45,7 +45,14 @@ const COPY = {
           soloed: [],
           toast: null,
           typing: false,
-          card: { title: 'Moises Keyboard Shortcuts', tryPrefix: 'Try', key: 'V', trySuffix: 'to mute', track: 'Vocals', showKeys: 'Show keys' },
+          card: {
+            title: 'Moises Keyboard Shortcuts',
+            tryPrefix: 'Try',
+            key: 'V',
+            trySuffix: 'to mute',
+            track: 'Vocals',
+            showKeys: 'Show keys',
+          },
         },
       },
       {
@@ -94,7 +101,14 @@ const COPY = {
           soloed: [],
           toast: null,
           typing: false,
-          card: { title: 'Atajos de teclado de Moises', tryPrefix: 'Probá', key: 'V', trySuffix: 'para silenciar', track: 'Vocals', showKeys: 'Ver teclas' },
+          card: {
+            title: 'Atajos de teclado de Moises',
+            tryPrefix: 'Probá',
+            key: 'V',
+            trySuffix: 'para silenciar',
+            track: 'Vocals',
+            showKeys: 'Ver teclas',
+          },
         },
       },
       {
