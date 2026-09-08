@@ -8,7 +8,7 @@ import {
   RETRY_DELAY_MS,
   type TrackAction,
 } from '@/lib/config';
-import { surfaceCheatSheet } from '@/lib/cheatsheet';
+import { refreshCheatSheet, surfaceCheatSheet } from '@/lib/cheatsheet';
 import { createTriggerDebouncer } from '@/lib/debounce';
 import {
   findActionButton,
@@ -18,7 +18,6 @@ import {
   listDetectedTrackLabels,
   nextToggleState,
 } from '@/lib/dom-finder';
-import { surfaceFeedbackLink } from '@/lib/feedback';
 import { msg } from '@/lib/i18n';
 import { resolveShortcut, shouldIgnoreKeypress } from '@/lib/keyboard';
 import { log, logError } from '@/lib/logger';
@@ -97,8 +96,10 @@ async function toggleTrackAction(trackName: string, action: TrackAction): Promis
   log(`${trackName} ${action} toggled`);
   showActionToast(trackName, action, state);
   // A successful toggle is the only signal that the extension delivered value,
-  // so it is the trigger that (eventually) earns the review prompt.
+  // so it is what (eventually) earns the review ask. The card renders it, so it
+  // has to be told the count moved.
   recordUse();
+  refreshCheatSheet();
 }
 
 export default defineContentScript({
@@ -141,6 +142,5 @@ export default defineContentScript({
     log('Extension loaded, shortcuts active');
 
     surfaceCheatSheet();
-    surfaceFeedbackLink();
   },
 });

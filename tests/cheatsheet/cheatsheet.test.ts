@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { surfaceCheatSheet } from '@/lib/cheatsheet';
+import { REVIEW_PROMPT_AFTER } from '@/lib/config';
+import { refreshCheatSheet, surfaceCheatSheet } from '@/lib/cheatsheet';
+import { recordUse } from '@/lib/review';
 
 // Echo the key so the module renders without a browser.i18n mock (same
 // convention as the review-prompt and toast tests).
@@ -91,12 +93,88 @@ describe('surfaceCheatSheet', () => {
     mountPlayer();
     surfaceCheatSheet();
     await vi.waitFor(() => card());
-    // The review prompt counts uses; the card deliberately ignores that.
     localStorage.setItem('moises-kb-uses', '50');
     document.getElementById(CARD_ID)?.remove();
     surfaceCheatSheet();
     await vi.waitFor(() => card());
     expect(document.getElementById(CARD_ID)).not.toBeNull();
+  });
+
+  it('offers the rating and the feedback form from the expanded footer', async () => {
+    mountPlayer();
+    surfaceCheatSheet();
+    await vi.waitFor(() => card());
+    buttonWith('cheatsheetShowKeys').click();
+
+    const hrefs = [...card().querySelectorAll('a')].map((a) => a.getAttribute('href'));
+    expect(hrefs.some((h) => h?.includes('chromewebstore.google.com'))).toBe(true);
+    expect(hrefs.some((h) => h?.includes('forms.gle'))).toBe(true);
+    expect(card().textContent).toContain('★★★★★');
+  });
+
+  // The stars are a link to the store, never an input: a fill-on-click would
+  // claim to have captured a rating the Web Store takes on its own page.
+  it('renders every star identically, with no captured-vote state', async () => {
+    mountPlayer();
+    surfaceCheatSheet();
+    await vi.waitFor(() => card());
+    buttonWith('cheatsheetShowKeys').click();
+
+    const stars = [...card().querySelectorAll('span')].filter((s) => s.textContent === '★');
+    expect(stars).toHaveLength(5);
+    expect(new Set(stars.map((s) => s.style.color)).size).toBe(1);
+  });
+
+  describe('rating ask', () => {
+    const earnIt = (): void => {
+      for (let i = 0; i < REVIEW_PROMPT_AFTER; i++) {
+        recordUse();
+      }
+    };
+
+    it('is absent while the shortcuts have not proved useful yet', async () => {
+      mountPlayer();
+      surfaceCheatSheet();
+      await vi.waitFor(() => card());
+      expect(card().textContent).toContain('cheatsheetTryPrefix');
+      expect(card().textContent).not.toContain('cheatsheetRateCta');
+    });
+
+    it('takes over the collapsed line once earned, without adding a second element', async () => {
+      mountPlayer();
+      earnIt();
+      surfaceCheatSheet();
+      await vi.waitFor(() => card());
+      expect(card().textContent).toContain('cheatsheetRateCta');
+      expect(card().textContent).not.toContain('cheatsheetTryPrefix');
+      expect(document.body.children).toHaveLength(2); // the player rows + the card
+    });
+
+    it('appears the moment the threshold is crossed, without a reload', async () => {
+      mountPlayer();
+      surfaceCheatSheet();
+      await vi.waitFor(() => card());
+      expect(card().textContent).not.toContain('cheatsheetRateCta');
+
+      earnIt();
+      refreshCheatSheet();
+      expect(card().textContent).toContain('cheatsheetRateCta');
+    });
+
+    it('closing the card also silences the ask for good', async () => {
+      mountPlayer();
+      earnIt();
+      surfaceCheatSheet();
+      await vi.waitFor(() => card());
+
+      buttonWith('✕').click();
+      expect(localStorage.getItem('moises-kb-review-done')).not.toBeNull();
+
+      localStorage.removeItem('moises-kb-cheatsheet-dismissed');
+      surfaceCheatSheet();
+      await vi.waitFor(() => card());
+      expect(card().textContent).not.toContain('cheatsheetRateCta');
+    });
   });
 
   it('stays away from the shell frame, which has no track controls', async () => {

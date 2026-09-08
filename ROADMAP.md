@@ -150,7 +150,9 @@ The cheat-sheet only existed in the toolbar popup, which most users never open, 
 - Top-centre, rounded, 1Password-style: collapsed it leads with a single key to try rather than the whole table, because reading one key and pressing it is the shortest path to the first use.
 - Expands to the full table, sharing `collectTrackKeys` with the popup so the two can never disagree, and lists the player's own keys (Space = play/pause, verified live) in their own section — advertised, never intercepted, with a test pinning that `resolveShortcut` returns null for them.
 - Persists until the ✕. Deliberately **not** retired by usage: the user asked for a permanent surface, not an onboarding hint.
-- **Done when:** the card renders in the player, expands and collapses, and stays dismissed across loads. ✅ Verified on the live player 2026-09-07 (screenshots in `docs/pr-media/`).
+- Absorbs the feedback and review pills. The extension had grown three floating surfaces; the review one sat on top of the player's Lyrics/Chords/Sections buttons, and its gate — five successful toggles — may simply never open for someone who never learned the keys, which fits the **0 ratings** the measurement found. Both now live in the card: the footer always offers them, and the earned ask takes over the collapsed line instead of spawning a pill.
+- The stars link to the store and never simulate a captured vote; the ✕ silences the ask along with the card, because insisting after a "no" is what gets an extension uninstalled.
+- **Done when:** the card renders in the player, expands and collapses, stays dismissed across loads, and nothing of ours overlaps the player's controls. ✅ Verified on the live player 2026-09-07 (screenshots in `docs/pr-media/`).
 
 ## Post-v1.5 (backlog)
 

@@ -1,7 +1,15 @@
-import { DEFAULT_TRACK_COLOR, PROBE_ATTEMPTS, PROBE_DELAY_MS, TRACK_COLORS } from '@/lib/config';
+import {
+  DEFAULT_TRACK_COLOR,
+  FEEDBACK_URL,
+  PROBE_ATTEMPTS,
+  PROBE_DELAY_MS,
+  REVIEW_URL,
+  TRACK_COLORS,
+} from '@/lib/config';
 import { hasTrackControls } from '@/lib/dom-finder';
 import { msg } from '@/lib/i18n';
 import { retryUntil } from '@/lib/retry';
+import { isReviewEarned, markReviewHandled } from '@/lib/review';
 import { collectTrackKeys, PLAYER_NATIVE_SHORTCUTS } from '@/lib/shortcuts';
 
 const CARD_ID = 'moises-kb-cheatsheet';
@@ -10,6 +18,12 @@ const DISMISSED_KEY = 'moises-kb-cheatsheet-dismissed';
 // The card teaches the shortcuts to someone who never opens the toolbar popup,
 // so it leads with one key they can try immediately rather than the whole table.
 const TEASER_TRACK_INDEX = 0;
+
+const STAR_COUNT = 5;
+
+// Set while a collapsed card is on screen, so a toggle that earns the rating
+// can flip the line without rebuilding the card.
+let refreshLine: (() => void) | null = null;
 
 // localStorage can throw in sandboxed/cross-origin frames; every access fails
 // safe, matching the feedback and review pills.
@@ -162,8 +176,78 @@ function buildKeyTable(): HTMLDivElement {
     fontSize: '11px',
   });
   table.appendChild(hint);
+  table.appendChild(buildFooter());
 
   return table;
+}
+
+// The Web Store takes the actual rating on its own page, so these stars are a
+// link, never an input: they all render the same and none of them fills on
+// hover or click. Showing a captured vote we cannot capture would be a lie.
+function starLink(onGo: () => void): HTMLAnchorElement {
+  const link = document.createElement('a');
+  link.href = REVIEW_URL;
+  link.target = '_blank';
+  link.rel = 'noopener';
+  link.setAttribute('aria-label', msg('cheatsheetRateCta'));
+  Object.assign(link.style, {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '2px',
+    textDecoration: 'none',
+    cursor: 'pointer',
+  });
+  for (let i = 0; i < STAR_COUNT; i++) {
+    const star = document.createElement('span');
+    star.textContent = '★';
+    star.setAttribute('aria-hidden', 'true');
+    Object.assign(star.style, { color: '#fbbf24', fontSize: '13px', lineHeight: '1' });
+    link.appendChild(star);
+  }
+  link.addEventListener('click', onGo);
+  return link;
+}
+
+function actionLink(text: string, href: string, onGo?: () => void): HTMLAnchorElement {
+  const link = document.createElement('a');
+  link.textContent = text;
+  link.href = href;
+  link.target = '_blank';
+  link.rel = 'noopener';
+  Object.assign(link.style, { color: '#8ab4ff', textDecoration: 'none', fontSize: '11px' });
+  if (onGo != null) {
+    link.addEventListener('click', onGo);
+  }
+  return link;
+}
+
+// Feedback and the rating live inside the card instead of as pills of their
+// own: one floating surface, and nothing of ours sits on the player's controls.
+function buildFooter(): HTMLDivElement {
+  const footer = document.createElement('div');
+  Object.assign(footer.style, {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    marginTop: '8px',
+    paddingTop: '8px',
+    borderTop: '1px solid rgba(255,255,255,0.08)',
+  });
+
+  if (REVIEW_URL !== '') {
+    footer.appendChild(starLink(markReviewHandled));
+    const rate = actionLink(msg('cheatsheetRate'), REVIEW_URL, markReviewHandled);
+    footer.appendChild(rate);
+  }
+
+  const spacer = document.createElement('span');
+  spacer.style.flex = '1';
+  footer.appendChild(spacer);
+
+  if (FEEDBACK_URL !== '') {
+    footer.appendChild(actionLink(msg('cheatsheetFeedback'), FEEDBACK_URL));
+  }
+  return footer;
 }
 
 function showCard(): void {
@@ -204,10 +288,8 @@ function showCard(): void {
   Object.assign(text.style, { display: 'flex', flexDirection: 'column', gap: '1px', minWidth: '0' });
 
   const title = document.createElement('span');
-  title.textContent = msg('cheatsheetTitle');
   Object.assign(title.style, { fontSize: '13px', fontWeight: '700', whiteSpace: 'nowrap' });
 
-  const rows = collectTrackKeys();
   const teaser = document.createElement('span');
   Object.assign(teaser.style, {
     display: 'flex',
@@ -217,12 +299,27 @@ function showCard(): void {
     fontSize: '12px',
     whiteSpace: 'nowrap',
   });
-  const lead = rows[TEASER_TRACK_INDEX];
-  if (lead != null) {
-    teaser.appendChild(document.createTextNode(msg('cheatsheetTryPrefix')));
-    teaser.appendChild(keycap(lead.muteKey.toUpperCase(), true));
-    teaser.appendChild(document.createTextNode(`${msg('cheatsheetTrySuffix')} ${lead.track}`));
-  }
+
+  // Two modes, one surface: teach the keys until the shortcuts have proved
+  // useful, then ask for the rating in the space the teaser was using. The ask
+  // never spawns a second element of its own.
+  const fillLine = (): void => {
+    title.textContent = isReviewEarned() ? msg('reviewText') : msg('cheatsheetTitle');
+    teaser.replaceChildren();
+    if (isReviewEarned()) {
+      teaser.appendChild(starLink(markReviewHandled));
+      teaser.appendChild(actionLink(msg('cheatsheetRateCta'), REVIEW_URL, markReviewHandled));
+      return;
+    }
+    const lead = collectTrackKeys()[TEASER_TRACK_INDEX];
+    if (lead != null) {
+      teaser.appendChild(document.createTextNode(msg('cheatsheetTryPrefix')));
+      teaser.appendChild(keycap(lead.muteKey.toUpperCase(), true));
+      teaser.appendChild(document.createTextNode(`${msg('cheatsheetTrySuffix')} ${lead.track}`));
+    }
+  };
+  fillLine();
+  refreshLine = fillLine;
 
   text.appendChild(title);
   text.appendChild(teaser);
@@ -258,7 +355,11 @@ function showCard(): void {
     flexShrink: '0',
   });
   close.addEventListener('click', () => {
+    // Closing the card closes the whole conversation: the rating ask lived here
+    // and must not come back through another door.
     markDismissed();
+    markReviewHandled();
+    refreshLine = null;
     card.remove();
   });
 
@@ -305,4 +406,10 @@ export function surfaceCheatSheet(): void {
       }
     },
   );
+}
+
+// Called after a successful toggle: re-renders the collapsed line so the rating
+// ask appears the moment it is earned, without waiting for a reload.
+export function refreshCheatSheet(): void {
+  refreshLine?.();
 }

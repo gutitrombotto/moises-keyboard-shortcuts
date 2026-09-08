@@ -63,10 +63,6 @@
     "message": "Este reproductor muestra:",
     "description": "Precede la lista de etiquetas de pista encontradas en el DOM del reproductor, en el toast de diagnóstico. Las etiquetas vienen del reproductor y no se traducen."
   },
-  "feedbackLink": {
-    "message": "⌨️ Sugerencias de atajos",
-    "description": "Text of the dismissible in-player feedback pill."
-  },
   "feedbackDismiss": {
     "message": "Descartar",
     "description": "Tooltip on the ✕ that closes the feedback and review pills."
@@ -74,10 +70,6 @@
   "reviewText": {
     "message": "¿Te están sirviendo los atajos?",
     "description": "Lead-in text of the in-player review prompt, shown after a few successful uses."
-  },
-  "reviewCta": {
-    "message": "Calificá en el Web Store ★",
-    "description": "Link in the review prompt that opens the Chrome Web Store review page."
   },
   "reportLink": {
     "message": "Reportar ↗",
@@ -110,5 +102,17 @@
   "cheatsheetNativePlayPause": {
     "message": "reproducir / pausar",
     "description": "Etiqueta del atajo de barra espaciadora propio del reproductor."
+  },
+  "cheatsheetRate": {
+    "message": "Calificar",
+    "description": "Etiqueta breve junto a las estrellas en el pie de la placa; abre la ficha del Web Store."
+  },
+  "cheatsheetRateCta": {
+    "message": "Calificar en el Web Store",
+    "description": "Llamada a la acción junto a las estrellas cuando se ganó el pedido de reseña."
+  },
+  "cheatsheetFeedback": {
+    "message": "Sugerencias ↗",
+    "description": "Enlace del pie de la placa al formulario de sugerencias."
   }
 }

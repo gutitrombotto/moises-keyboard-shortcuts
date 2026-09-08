@@ -1,23 +1,13 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { REVIEW_PROMPT_AFTER } from '@/lib/config';
-import { recordUse, shouldPrompt } from '@/lib/review';
+import { isReviewEarned, markReviewHandled, recordUse, shouldPrompt } from '@/lib/review';
 
-// The pill text is the only thing that needs i18n; echo the key so the module
-// can render without a browser.i18n mock (matches how the popup helper resolves).
-vi.mock('@/lib/i18n', () => ({ msg: (key: string) => key }));
-
-const REVIEW_ID = 'moises-kb-review';
 const USES_KEY = 'moises-kb-uses';
 const DONE_KEY = 'moises-kb-review-done';
 
-function pill(): HTMLElement | null {
-  return document.getElementById(REVIEW_ID);
-}
-
 afterEach(() => {
   localStorage.clear();
-  document.getElementById(REVIEW_ID)?.remove();
 });
 
 describe('shouldPrompt', () => {
@@ -41,41 +31,47 @@ describe('recordUse', () => {
     expect(localStorage.getItem(USES_KEY)).toBe('2');
   });
 
-  it('does not surface the prompt before the threshold', () => {
-    for (let i = 0; i < REVIEW_PROMPT_AFTER - 1; i++) {
-      recordUse();
-    }
-    expect(pill()).toBeNull();
-  });
-
-  it('surfaces the prompt exactly when the threshold is crossed', () => {
-    for (let i = 0; i < REVIEW_PROMPT_AFTER; i++) {
-      recordUse();
-    }
-    expect(pill()).not.toBeNull();
-  });
-
-  it('mounts a single prompt even if more toggles arrive', () => {
+  // The ask is rendered by the cheat-sheet card, so this module must never put
+  // anything on the page itself — that is what kept a second pill off the
+  // player's own controls.
+  it('renders nothing at all', () => {
     for (let i = 0; i < REVIEW_PROMPT_AFTER + 3; i++) {
       recordUse();
     }
-    expect(document.querySelectorAll(`#${REVIEW_ID}`).length).toBe(1);
+    expect(document.body.children.length).toBe(0);
+  });
+});
+
+describe('isReviewEarned', () => {
+  it('is false before the threshold', () => {
+    for (let i = 0; i < REVIEW_PROMPT_AFTER - 1; i++) {
+      recordUse();
+    }
+    expect(isReviewEarned()).toBe(false);
   });
 
-  it('does not re-prompt after the user dismisses it', () => {
+  it('becomes true exactly when the threshold is crossed', () => {
     for (let i = 0; i < REVIEW_PROMPT_AFTER; i++) {
       recordUse();
     }
-    const close = pill()?.lastElementChild;
-    if (!(close instanceof HTMLElement)) {
-      throw new Error('review prompt has no dismiss control');
-    }
-    close.click();
+    expect(isReviewEarned()).toBe(true);
+  });
 
-    expect(pill()).toBeNull();
+  it('goes quiet for good once handled', () => {
+    for (let i = 0; i < REVIEW_PROMPT_AFTER; i++) {
+      recordUse();
+    }
+    markReviewHandled();
     expect(localStorage.getItem(DONE_KEY)).not.toBeNull();
+    expect(isReviewEarned()).toBe(false);
 
     recordUse();
-    expect(pill()).toBeNull();
+    expect(isReviewEarned()).toBe(false);
+  });
+
+  it('stops counting once handled, so the counter cannot resurrect the ask', () => {
+    markReviewHandled();
+    recordUse();
+    expect(localStorage.getItem(USES_KEY)).toBeNull();
   });
 });

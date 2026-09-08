@@ -63,10 +63,6 @@
     "message": "Este leitor mostra:",
     "description": "Precede a lista de etiquetas de faixa encontradas no DOM do leitor, no toast de diagnóstico. As etiquetas vêm do leitor e não são traduzidas."
   },
-  "feedbackLink": {
-    "message": "⌨️ Feedback dos atalhos",
-    "description": "Text of the dismissible in-player feedback pill."
-  },
   "feedbackDismiss": {
     "message": "Dispensar",
     "description": "Tooltip on the ✕ that closes the feedback and review pills."
@@ -74,10 +70,6 @@
   "reviewText": {
     "message": "A gostar dos atalhos?",
     "description": "Lead-in text of the in-player review prompt, shown after a few successful uses."
-  },
-  "reviewCta": {
-    "message": "Avalie na Web Store ★",
-    "description": "Link in the review prompt that opens the Chrome Web Store review page."
   },
   "reportLink": {
     "message": "Comunicar ↗",
@@ -110,5 +102,17 @@
   "cheatsheetNativePlayPause": {
     "message": "reproduzir / pausar",
     "description": "Etiqueta do atalho de barra de espaço do próprio leitor."
+  },
+  "cheatsheetRate": {
+    "message": "Avaliar",
+    "description": "Etiqueta breve junto às estrelas no rodapé do cartão; abre a página da Web Store."
+  },
+  "cheatsheetRateCta": {
+    "message": "Avaliar na Web Store",
+    "description": "Apelo à ação junto às estrelas quando o pedido de avaliação foi merecido."
+  },
+  "cheatsheetFeedback": {
+    "message": "Feedback ↗",
+    "description": "Ligação do rodapé do cartão para o formulário de feedback."
   }
 }

@@ -63,10 +63,6 @@
     "message": "This player shows:",
     "description": "Precedes the list of track labels actually found in the player DOM, shown in the diagnostic toast when a lookup misses. The labels themselves come from the player and are never translated."
   },
-  "feedbackLink": {
-    "message": "⌨️ Shortcuts feedback",
-    "description": "Text of the dismissible in-player feedback pill."
-  },
   "feedbackDismiss": {
     "message": "Dismiss",
     "description": "Tooltip on the ✕ that closes the feedback and review pills."
@@ -74,10 +70,6 @@
   "reviewText": {
     "message": "Enjoying the shortcuts?",
     "description": "Lead-in text of the in-player review prompt, shown after a few successful uses."
-  },
-  "reviewCta": {
-    "message": "Rate on the Web Store ★",
-    "description": "Link in the review prompt that opens the Chrome Web Store review page."
   },
   "reportLink": {
     "message": "Report ↗",
@@ -110,5 +102,17 @@
   "cheatsheetNativePlayPause": {
     "message": "play / pause",
     "description": "Label for the player’s own spacebar shortcut."
+  },
+  "cheatsheetRate": {
+    "message": "Rate",
+    "description": "Short label beside the star row in the card footer; opens the Web Store review page."
+  },
+  "cheatsheetRateCta": {
+    "message": "Rate on the Web Store",
+    "description": "Call to action shown beside the stars when the rating ask has been earned."
+  },
+  "cheatsheetFeedback": {
+    "message": "Feedback ↗",
+    "description": "Card footer link to the feedback form."
   }
 }
