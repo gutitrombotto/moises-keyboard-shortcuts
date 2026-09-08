@@ -73,20 +73,20 @@ function keycap(label: string, small: boolean): HTMLSpanElement {
   return el;
 }
 
-function iconTile(): HTMLSpanElement {
+function iconTile(size = 34): HTMLSpanElement {
   const tile = document.createElement('span');
   tile.textContent = '⌨';
   Object.assign(tile.style, {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '34px',
-    height: '34px',
+    width: `${size}px`,
+    height: `${size}px`,
     flexShrink: '0',
-    borderRadius: '11px',
+    borderRadius: `${Math.round(size / 3)}px`,
     background: 'linear-gradient(140deg, #3ee6a0 0%, #2bb4d6 100%)',
     color: '#06231a',
-    fontSize: '17px',
+    fontSize: `${Math.round(size / 2)}px`,
   });
   return tile;
 }
@@ -258,12 +258,30 @@ function buildFooter(): HTMLDivElement {
   return footer;
 }
 
-// The launcher takes the card's own position: shrinking in place is what makes
-// it obvious what the icon is and where to click to get the card back. Parked
-// in a corner it reads as unrelated chrome and goes unnoticed.
 const ANCHOR = {
   position: 'fixed',
   top: '96px',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  zIndex: '999998',
+} as const;
+
+const LAUNCHER_SIZE = 24;
+
+// The launcher keeps the card's horizontal centre — that is what ties the icon
+// back to the thing it came from — but drops to the band above the transport
+// bar. At the card's own height it would sit on the timeline ruler and swallow
+// seek clicks there permanently, which the card does not because the card gets
+// closed.
+//
+// Measured across nine viewports: on desktop windows this band is free, while
+// every other candidate offset lands on a real control somewhere (the tempo
+// widget, the play button, Reset, the cycle range). At phone widths it does
+// overlap the transport, and that is accepted: a keyboard-shortcut extension
+// has nothing to offer a viewport with no keyboard.
+const LAUNCHER_ANCHOR = {
+  position: 'fixed',
+  bottom: '88px',
   left: '50%',
   transform: 'translateX(-50%)',
   zIndex: '999998',
@@ -279,7 +297,7 @@ function showLauncher(): void {
   button.title = msg('cheatsheetTitle');
   button.setAttribute('aria-label', msg('cheatsheetReopen'));
   Object.assign(button.style, {
-    ...ANCHOR,
+    ...LAUNCHER_ANCHOR,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -293,7 +311,7 @@ function showLauncher(): void {
     opacity: '0',
     transition: 'opacity 0.25s ease',
   });
-  button.appendChild(iconTile());
+  button.appendChild(iconTile(LAUNCHER_SIZE));
   button.addEventListener('click', () => {
     setMinimized(false);
     button.remove();

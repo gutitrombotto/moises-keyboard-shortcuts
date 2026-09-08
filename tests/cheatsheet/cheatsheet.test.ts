@@ -89,17 +89,25 @@ describe('surfaceCheatSheet', () => {
     expect(localStorage.getItem(MINIMIZED_KEY)).not.toBeNull();
   });
 
-  it('leaves the launcher where the card was, so it reads as the same thing', async () => {
+  // It keeps the card's horizontal centre so the icon reads as the same thing,
+  // but drops clear of the timeline ruler, where a permanent 24px target would
+  // swallow seek clicks the card never does — the card gets closed.
+  it('keeps the card centre line but sits clear of the timeline', () => {
     mountPlayer();
     surfaceCheatSheet();
-    await vi.waitFor(() => card());
-    const cardTop = card().style.top;
-    const cardLeft = card().style.left;
+    return vi
+      .waitFor(() => card())
+      .then(() => {
+        const cardLeft = card().style.left;
+        const cardTransform = card().style.transform;
 
-    buttonWith('✕').click();
-    const launcher = document.getElementById(LAUNCHER_ID) as HTMLElement;
-    expect(launcher.style.top).toBe(cardTop);
-    expect(launcher.style.left).toBe(cardLeft);
+        buttonWith('✕').click();
+        const launcher = document.getElementById(LAUNCHER_ID) as HTMLElement;
+        expect(launcher.style.left).toBe(cardLeft);
+        expect(launcher.style.transform).toBe(cardTransform);
+        expect(launcher.style.top).toBe('');
+        expect(launcher.style.bottom).toBe('88px');
+      });
   });
 
   it('brings the card back when the launcher is clicked', async () => {
