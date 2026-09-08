@@ -8,6 +8,7 @@ import {
   RETRY_DELAY_MS,
   type TrackAction,
 } from '@/lib/config';
+import { surfaceCheatSheet } from '@/lib/cheatsheet';
 import { createTriggerDebouncer } from '@/lib/debounce';
 import {
   findActionButton,
@@ -139,6 +140,7 @@ export default defineContentScript({
 
     log('Extension loaded, shortcuts active');
 
+    surfaceCheatSheet();
     surfaceFeedbackLink();
   },
 });

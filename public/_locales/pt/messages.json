@@ -82,5 +82,33 @@
   "reportLink": {
     "message": "Comunicar ↗",
     "description": "Ligação no toast de diagnóstico que abre o formulário de feedback."
+  },
+  "cheatsheetTitle": {
+    "message": "Atalhos de teclado do Moises",
+    "description": "Título do cartão no leitor que mostra os atalhos sem abrir o popup."
+  },
+  "cheatsheetTryPrefix": {
+    "message": "Experimente",
+    "description": "Texto antes da tecla: \"Experimente [V] para silenciar Vocals\"."
+  },
+  "cheatsheetTrySuffix": {
+    "message": "para silenciar",
+    "description": "Texto entre a tecla e o nome da faixa."
+  },
+  "cheatsheetShowKeys": {
+    "message": "Ver teclas",
+    "description": "Ação do cartão que expande a tabela completa."
+  },
+  "cheatsheetHideKeys": {
+    "message": "Ocultar teclas",
+    "description": "Ação do cartão que recolhe a tabela."
+  },
+  "cheatsheetNativeTitle": {
+    "message": "Do próprio leitor",
+    "description": "Cabeçalho dos atalhos nativos do Moises, que a extensão nunca interceta."
+  },
+  "cheatsheetNativePlayPause": {
+    "message": "reproduzir / pausar",
+    "description": "Etiqueta do atalho de barra de espaço do próprio leitor."
   }
 }

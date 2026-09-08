@@ -82,5 +82,33 @@
   "reportLink": {
     "message": "Report ↗",
     "description": "Link in the diagnostic toast that opens the feedback form."
+  },
+  "cheatsheetTitle": {
+    "message": "Moises Keyboard Shortcuts",
+    "description": "Title on the in-player card that surfaces the shortcuts without opening the toolbar popup."
+  },
+  "cheatsheetTryPrefix": {
+    "message": "Try",
+    "description": "Card teaser, rendered before the keycap: \"Try [V] to mute Vocals\". The track name comes from config and is not translated."
+  },
+  "cheatsheetTrySuffix": {
+    "message": "to mute",
+    "description": "Card teaser, rendered after the keycap and before the track name."
+  },
+  "cheatsheetShowKeys": {
+    "message": "Show keys",
+    "description": "Card action that expands the full shortcut table."
+  },
+  "cheatsheetHideKeys": {
+    "message": "Hide keys",
+    "description": "Card action that collapses the shortcut table."
+  },
+  "cheatsheetNativeTitle": {
+    "message": "From the player itself",
+    "description": "Caption above the shortcuts Moises binds natively, listed in the card but never intercepted by the extension."
+  },
+  "cheatsheetNativePlayPause": {
+    "message": "play / pause",
+    "description": "Label for the player’s own spacebar shortcut."
   }
 }

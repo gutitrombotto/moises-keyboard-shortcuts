@@ -82,5 +82,33 @@
   "reportLink": {
     "message": "Reportar ↗",
     "description": "Enlace del toast de diagnóstico que abre el formulario de sugerencias."
+  },
+  "cheatsheetTitle": {
+    "message": "Atajos de teclado de Moises",
+    "description": "Título de la placa en el reproductor que muestra los atajos sin abrir el popup."
+  },
+  "cheatsheetTryPrefix": {
+    "message": "Probá",
+    "description": "Texto previo a la tecla: \"Probá [V] para silenciar Vocals\"."
+  },
+  "cheatsheetTrySuffix": {
+    "message": "para silenciar",
+    "description": "Texto entre la tecla y el nombre de la pista."
+  },
+  "cheatsheetShowKeys": {
+    "message": "Ver teclas",
+    "description": "Acción de la placa que despliega la tabla completa."
+  },
+  "cheatsheetHideKeys": {
+    "message": "Ocultar teclas",
+    "description": "Acción de la placa que colapsa la tabla."
+  },
+  "cheatsheetNativeTitle": {
+    "message": "Del reproductor",
+    "description": "Encabezado de los atajos que trae Moises y la extensión nunca intercepta."
+  },
+  "cheatsheetNativePlayPause": {
+    "message": "reproducir / pausar",
+    "description": "Etiqueta del atajo de barra espaciadora propio del reproductor."
   }
 }
