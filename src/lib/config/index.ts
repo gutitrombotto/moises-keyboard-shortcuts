@@ -29,6 +29,17 @@ export const ACTION_CLASS_PATTERNS: Readonly<Record<TrackAction, string>> = {
   solo: 'buttonSolo',
 };
 
+// How the player marks a control as currently engaged. Captured live from the
+// 2026 player (2026-09-07): muting adds controls_isMuted__* (alongside
+// controls_isSilentMuted__*), soloing adds controls_active__*. This is the only
+// readable state — the frame carries **no** aria-pressed on any button — so
+// without these the toast can never say whether a click muted or unmuted.
+// Same class-prefix contract as ACTION_CLASS_PATTERNS: a rehash breaks both.
+export const ACTION_ACTIVE_CLASS_PATTERNS: Readonly<Record<TrackAction, string>> = {
+  mute: 'isMuted',
+  solo: 'controls_active',
+};
+
 // The player localizes the visible track label to the user's Moises UI language,
 // and the row exposes no language-independent stem id (no data-*, no per-stem
 // icon or aria-label — verified live on the 2026 DOM). So detection matches the

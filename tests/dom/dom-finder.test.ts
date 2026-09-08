@@ -123,13 +123,47 @@ describe('findActionButton', () => {
     expect(findActionButton(container, 'buttonRecord')).toBeNull();
   });
 
-  it('predicts the resulting toggle state from aria-pressed before clicking', () => {
+  // The live 2026 frame carries no aria-pressed on any button (verified
+  // 2026-09-07), so the engaged marker is the class. Keying on aria-pressed
+  // alone made every real toggle 'unknown'.
+  it('predicts the resulting state from the engaged class before clicking', () => {
     const button = document.createElement('button');
-    expect(nextToggleState(button)).toBe('unknown');
+    button.className = 'controls_button__Ixo9N controls_buttonMute__HNRvx';
+    expect(nextToggleState(button, 'mute')).toBe('on');
+    button.className += ' controls_isMuted____3K7 controls_isSilentMuted__tlyG4';
+    expect(nextToggleState(button, 'mute')).toBe('off');
+  });
+
+  it('reads the solo marker independently of the mute marker', () => {
+    const button = document.createElement('button');
+    button.className = 'controls_button__Ixo9N controls_buttonSolo__KzYrB';
+    expect(nextToggleState(button, 'solo')).toBe('on');
+    button.className += ' controls_active__1T8c4';
+    expect(nextToggleState(button, 'solo')).toBe('off');
+  });
+
+  it('prefers aria-pressed if the player ever exposes it', () => {
+    const button = document.createElement('button');
+    button.className = 'controls_buttonMute__HNRvx controls_isMuted____3K7';
     button.setAttribute('aria-pressed', 'false');
-    expect(nextToggleState(button)).toBe('on');
+    expect(nextToggleState(button, 'mute')).toBe('on');
     button.setAttribute('aria-pressed', 'true');
-    expect(nextToggleState(button)).toBe('off');
+    expect(nextToggleState(button, 'mute')).toBe('off');
+  });
+
+  it('reads the real fixture rows the way the live player marks them', () => {
+    const doc = loadFixture('player');
+    const muted = findActionButton(
+      containerFor(doc, 'Smart Metronome'),
+      ACTION_CLASS_PATTERNS.mute,
+    ) as HTMLButtonElement;
+    expect(nextToggleState(muted, 'mute')).toBe('off');
+
+    const idle = findActionButton(
+      containerFor(doc, 'Vocals'),
+      ACTION_CLASS_PATTERNS.mute,
+    ) as HTMLButtonElement;
+    expect(nextToggleState(idle, 'mute')).toBe('on');
   });
 
   it('yields a clickable button', () => {

@@ -1,4 +1,10 @@
-import { ACTION_CLASS_PATTERNS, TRACK_LABELS, type ToggleState } from '@/lib/config';
+import {
+  ACTION_ACTIVE_CLASS_PATTERNS,
+  ACTION_CLASS_PATTERNS,
+  TRACK_LABELS,
+  type ToggleState,
+  type TrackAction,
+} from '@/lib/config';
 
 // Walking more levels than the track-row depth would let two rows share a
 // "container" (e.g. the whole track list), so the climb is bounded.
@@ -157,10 +163,14 @@ export function findActionButton(container: HTMLElement, classPattern: string): 
   return null;
 }
 
-// Read BEFORE clicking: the click flips aria-pressed, and reading afterwards
-// would race the player's re-render. The result is the state the click will
-// produce; buttons without aria-pressed yield 'unknown'.
-export function nextToggleState(button: HTMLButtonElement): ToggleState {
+// Read BEFORE clicking: the click flips the marker, and reading afterwards would
+// race the player's re-render. The result is the state the click will produce.
+//
+// The engaged marker is a class, not aria-pressed — the live frame carries no
+// aria-pressed at all, so keying on it alone made every toggle 'unknown' and
+// every toast read as neither muted nor unmuted. aria-pressed is still honored
+// first in case Moises ever adds it, since it would be the better signal.
+export function nextToggleState(button: HTMLButtonElement, action: TrackAction): ToggleState {
   const pressed = button.getAttribute('aria-pressed');
   if (pressed === 'true') {
     return 'off';
@@ -168,5 +178,5 @@ export function nextToggleState(button: HTMLButtonElement): ToggleState {
   if (pressed === 'false') {
     return 'on';
   }
-  return 'unknown';
+  return button.className.includes(ACTION_ACTIVE_CLASS_PATTERNS[action]) ? 'off' : 'on';
 }

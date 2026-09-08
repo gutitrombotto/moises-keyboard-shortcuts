@@ -91,7 +91,7 @@ async function toggleTrackAction(trackName: string, action: TrackAction): Promis
     return;
   }
 
-  const state = nextToggleState(button);
+  const state = nextToggleState(button, action);
   button.click();
   log(`${trackName} ${action} toggled`);
   showActionToast(trackName, action, state);

@@ -38,7 +38,7 @@ On a real song at `studio.moises.ai/player2/...` with the unpacked v1.4.0 build:
 On a real song with the unpacked v1.5.0 build, in addition to the M5 matrix:
 
 - Popup: opens on icon click, shows green status on a player tab and gray + open-player link elsewhere; keycaps and colors render; feedback link opens the form; ES locale shows Spanish copy (`chrome://settings/languages`).
-- Toasts: mute shows the red MUTE chip when muting and the struck-through chip when unmuting (if the player exposes `aria-pressed`; otherwise the neutral chip is expected); solo shows the green SOLO chip; errors show the ✕ variant.
+- Toasts: mute shows the red MUTE chip when muting and the struck-through chip when unmuting; solo shows the green SOLO chip; errors show the ✕ variant. (Written when the state was read from `aria-pressed`, which this player never exposed — so the neutral chip is what actually appeared. Superseded by the class-based read; see SPECS §7.2.)
 
 ## M7 — Publish v1.5.0
 
