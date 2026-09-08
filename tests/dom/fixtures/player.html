@@ -6,6 +6,9 @@
   hashed CSS-module classes with stable prefixes (controls_buttonMute__*,
   controls_buttonSolo__*), SVG-only buttons, track labels as plain text nodes,
   and a Smart Metronome row that shares the control classes. It also carries the
+  engaged-state classes the live player uses (controls_isMuted__* on the muted
+  Smart Metronome row, controls_active__* for solo; there is no aria-pressed
+  anywhere in the real frame) and the
   noise the real frame carries — the GTM <noscript>, the song title and the
   __NEXT_DATA__ blob, all confirmed in the live capture — because a diagnostic
   that walks text nodes sweeps all of it up unless it is anchored on the
@@ -88,7 +91,10 @@
               <span class="controls_trackName__qR5tU">Smart Metronome</span>
             </div>
             <div class="controls_trackActions__mN8vC">
-              <button class="controls_buttonMute__HNRvx" aria-label="Mute Smart Metronome">
+              <button
+                class="controls_buttonMute__HNRvx controls_isMuted____3K7 controls_isSilentMuted__tlyG4"
+                aria-label="Mute Smart Metronome"
+              >
                 <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z" /></svg>
               </button>
               <button class="controls_buttonSolo__k9PqL" aria-label="Solo Smart Metronome">

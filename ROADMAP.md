@@ -38,7 +38,7 @@ On a real song at `studio.moises.ai/player2/...` with the unpacked v1.4.0 build:
 On a real song with the unpacked v1.5.0 build, in addition to the M5 matrix:
 
 - Popup: opens on icon click, shows green status on a player tab and gray + open-player link elsewhere; keycaps and colors render; feedback link opens the form; ES locale shows Spanish copy (`chrome://settings/languages`).
-- Toasts: mute shows the red MUTE chip when muting and the struck-through chip when unmuting (if the player exposes `aria-pressed`; otherwise the neutral chip is expected); solo shows the green SOLO chip; errors show the ✕ variant.
+- Toasts: mute shows the red MUTE chip when muting and the struck-through chip when unmuting; solo shows the green SOLO chip; errors show the ✕ variant. (Written when the state was read from `aria-pressed`, which this player never exposed — so the neutral chip is what actually appeared. Superseded by the class-based read; see SPECS §7.2.)
 
 ## M7 — Publish v1.5.0
 
@@ -121,11 +121,13 @@ you what broke; it does not watch them.
 found; a player with no recognizable controls says so instead of going quiet; and either state is
 one click from the feedback form with the context already attached.
 
-### M10 — validation matrix (gate for publishing v1.9.0)
+### M10 — validation matrix (gate for publishing v1.8.0)
 
 The loud player-frame failure is the one change here that can regress every user at once: if the
 frame check is ever wrong, the shell starts reporting on every keypress. Two safety valves are
 built in — the hostname check and one report per page load — and this matrix is the third.
+
+**Run 2026-09-07 on the live player, unpacked build v1.8.0 — 6/6 rows pass.** The broken-player row was exercised with a second unpacked build whose mute class pattern was renamed, loaded alongside and with the healthy one disabled. Two lessons for the next run: reloading the extension does **not** replace the content script already injected in an open tab (reload the tab too, or the run measures stale code), and the player ignores rapid programmatic clicks, so assertions must wait on the state change rather than on a fixed delay.
 
 On a real song at `studio.moises.ai/player2/...` with the unpacked build:
 
