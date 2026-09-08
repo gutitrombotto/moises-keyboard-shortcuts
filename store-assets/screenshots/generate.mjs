@@ -36,12 +36,24 @@ const COPY = {
         scene: { muted: ['Vocals'], soloed: [], toast: null, typing: false },
       },
       {
-        slot: '02-solo',
-        title: 'Shift solos. Plain key mutes.',
-        sub: 'Shift+D isolates the drums to lock in the groove. Press it again and the full mix is back.',
-        keys: ['Shift', 'D'],
-        chord: true,
-        scene: { muted: [], soloed: ['Drums'], toast: null, typing: false },
+        slot: '02-card',
+        title: 'The keys, right in the player',
+        sub: 'A card in the player itself leads with one shortcut to try, and opens to the full list — no need to hunt for the toolbar icon. Shift turns any of them into solo.',
+        keys: ['V'],
+        scene: {
+          muted: [],
+          soloed: [],
+          toast: null,
+          typing: false,
+          card: {
+            title: 'Moises Keyboard Shortcuts',
+            tryPrefix: 'Try',
+            key: 'V',
+            trySuffix: 'to mute',
+            track: 'Vocals',
+            showKeys: 'Show keys',
+          },
+        },
       },
       {
         slot: '03-toast',
@@ -80,12 +92,24 @@ const COPY = {
         scene: { muted: ['Vocals'], soloed: [], toast: null, typing: false },
       },
       {
-        slot: '02-solo',
-        title: 'Shift pone en solo. La tecla sola, mutea.',
-        sub: 'Shift+D aísla la batería para ajustar el groove. Apretala de nuevo y vuelve la mezcla completa.',
-        keys: ['Shift', 'D'],
-        chord: true,
-        scene: { muted: [], soloed: ['Drums'], toast: null, typing: false },
+        slot: '02-card',
+        title: 'Las teclas, ahí en el player',
+        sub: 'Una placa en el propio player arranca con un atajo para probar y se abre a la lista completa — sin buscar el ícono en la barra. Con Shift, cualquiera de ellos pone en solo.',
+        keys: ['V'],
+        scene: {
+          muted: [],
+          soloed: [],
+          toast: null,
+          typing: false,
+          card: {
+            title: 'Atajos de teclado de Moises',
+            tryPrefix: 'Probá',
+            key: 'V',
+            trySuffix: 'para silenciar',
+            track: 'Vocals',
+            showKeys: 'Ver teclas',
+          },
+        },
       },
       {
         slot: '03-toast',
@@ -163,6 +187,32 @@ function keyRow(keys, chord) {
   </div>`;
 }
 
+// Replica of the in-player card from src/lib/cheatsheet: same radii, colours,
+// icon tile gradient and copy strings as the shipped component.
+function cheatCard(card) {
+  if (!card) {
+    return '';
+  }
+  const cap = `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;
+    padding:0 5px;border-radius:6px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);
+    border-bottom-width:2px;color:#eef2f7;font-size:10px;font-weight:700;line-height:1">${card.key}</span>`;
+  return `<div style="position:absolute;top:-26px;left:50%;transform:translateX(-50%);z-index:5;
+    display:flex;align-items:flex-start;gap:11px;padding:11px 14px;border-radius:18px;
+    background:rgba(22,27,36,.97);border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 12px 34px rgba(0,0,0,.55);color:#eef2f7;white-space:nowrap">
+    <span style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;flex-shrink:0;
+      border-radius:11px;background:linear-gradient(140deg,#3ee6a0 0%,#2bb4d6 100%);color:#06231a;font-size:17px">⌨</span>
+    <span style="display:flex;flex-direction:column;gap:1px">
+      <span style="font-size:13px;font-weight:700">${card.title}</span>
+      <span style="display:flex;align-items:center;gap:5px;color:rgba(238,242,247,.6);font-size:12px">
+        ${card.tryPrefix} ${cap} ${card.trySuffix} ${card.track}
+      </span>
+    </span>
+    <span style="margin-left:6px;color:#8ab4ff;font-size:12px">${card.showKeys} ⌄</span>
+    <span style="padding-left:4px;color:rgba(238,242,247,.55);font-size:12px">✕</span>
+  </div>`;
+}
+
 function playerCard(copy, scene) {
   const toast = scene.toast
     ? `<div style="position:absolute;top:16px;right:16px;padding:10px 18px;border-radius:8px;background:#333;color:#fff;
@@ -195,6 +245,7 @@ function playerCard(copy, scene) {
     </div>
     ${toast}
     ${privacyBadge}
+    ${cheatCard(scene.card)}
   </div>`;
 }
 

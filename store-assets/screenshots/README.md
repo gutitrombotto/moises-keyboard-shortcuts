@@ -20,13 +20,13 @@ schematic (waveform bars + MUTE/SOLO pills) to avoid misrepresenting their produ
 
 ## Slots
 
-| Slot         | Shows                                      | Why                                                      |
-| ------------ | ------------------------------------------ | -------------------------------------------------------- |
-| `01-hero`    | V/D/B/O keycaps, Vocals muted in the list  | The one-keypress promise                                 |
-| `02-solo`    | Shift+D keycaps, Drums soloed, rest dimmed | The second half of the feature set (solo)                |
-| `03-toast`   | The real toast copy "Vocals mute toggled"  | Feedback: nothing fails silently                         |
-| `04-safety`  | Focused search input, Ctrl+V keycaps       | Input safety — the objection every keyboard tool gets    |
-| `05-privacy` | Lock badge, "0 REQUESTS"                   | Zero data / zero network — the listing's strongest claim |
+| Slot         | Shows                                     | Why                                                                |
+| ------------ | ----------------------------------------- | ------------------------------------------------------------------ |
+| `01-hero`    | V/D/B/O keycaps, Vocals muted in the list | The one-keypress promise                                           |
+| `02-card`    | The in-player cheat-sheet card, collapsed | Where the shortcuts live now (v1.8.0); solo is carried in the copy |
+| `03-toast`   | The real toast copy "Vocals mute toggled" | Feedback: nothing fails silently                                   |
+| `04-safety`  | Focused search input, Ctrl+V keycaps      | Input safety — the objection every keyboard tool gets              |
+| `05-privacy` | Lock badge, "0 REQUESTS"                  | Zero data / zero network — the listing's strongest claim           |
 
 Each locale has its own headline copy (`COPY` in the script); the ES copy is voseo
 rioplatense, matching `store-assets/listing/es.md`.
