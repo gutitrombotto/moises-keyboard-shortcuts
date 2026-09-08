@@ -114,5 +114,9 @@
   "cheatsheetFeedback": {
     "message": "Feedback ↗",
     "description": "Link do rodapé do card para o formulário de feedback."
+  },
+  "cheatsheetReopen": {
+    "message": "Mostrar os atalhos de teclado novamente",
+    "description": "Nome acessível do botão pequeno que fica no player depois de minimizar o card; ao clicar, o card volta."
   }
 }

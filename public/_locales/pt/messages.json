@@ -114,5 +114,9 @@
   "cheatsheetFeedback": {
     "message": "Feedback ↗",
     "description": "Ligação do rodapé do cartão para o formulário de feedback."
+  },
+  "cheatsheetReopen": {
+    "message": "Voltar a mostrar os atalhos de teclado",
+    "description": "Nome acessível do botão pequeno que fica no leitor depois de minimizar o cartão; ao clicar, o cartão volta."
   }
 }

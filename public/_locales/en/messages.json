@@ -114,5 +114,9 @@
   "cheatsheetFeedback": {
     "message": "Feedback ↗",
     "description": "Card footer link to the feedback form."
+  },
+  "cheatsheetReopen": {
+    "message": "Show the keyboard shortcuts again",
+    "description": "Accessible name of the small launcher left in the player after the card is minimised; clicking it brings the card back."
   }
 }
