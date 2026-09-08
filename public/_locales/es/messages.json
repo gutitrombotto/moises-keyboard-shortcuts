@@ -114,5 +114,9 @@
   "cheatsheetFeedback": {
     "message": "Sugerencias ↗",
     "description": "Enlace del pie de la placa al formulario de sugerencias."
+  },
+  "cheatsheetReopen": {
+    "message": "Volver a mostrar los atajos de teclado",
+    "description": "Nombre accesible del botón chico que queda en el reproductor tras minimizar la placa; al hacer clic, la placa vuelve."
   }
 }

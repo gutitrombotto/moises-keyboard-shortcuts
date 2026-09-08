@@ -9,7 +9,8 @@ import { recordUse } from '@/lib/review';
 vi.mock('@/lib/i18n', () => ({ msg: (key: string) => key }));
 
 const CARD_ID = 'moises-kb-cheatsheet';
-const DISMISSED_KEY = 'moises-kb-cheatsheet-dismissed';
+const MINIMIZED_KEY = 'moises-kb-cheatsheet-minimized';
+const LAUNCHER_ID = 'moises-kb-launcher';
 
 function mountPlayer(): void {
   document.body.innerHTML = `
@@ -75,17 +76,54 @@ describe('surfaceCheatSheet', () => {
     expect(buttonWith('cheatsheetShowKeys').getAttribute('aria-expanded')).toBe('false');
   });
 
-  it('stays dismissed across loads once closed — the ✕ is the only way out', async () => {
+  // Closing must never be a dead end: the card is now the only home of the
+  // shortcuts, the feedback form and the rating.
+  it('minimises to a launcher instead of vanishing', async () => {
     mountPlayer();
     surfaceCheatSheet();
     await vi.waitFor(() => card());
 
     buttonWith('✕').click();
     expect(document.getElementById(CARD_ID)).toBeNull();
-    expect(localStorage.getItem(DISMISSED_KEY)).not.toBeNull();
+    expect(document.getElementById(LAUNCHER_ID)).not.toBeNull();
+    expect(localStorage.getItem(MINIMIZED_KEY)).not.toBeNull();
+  });
+
+  it('leaves the launcher where the card was, so it reads as the same thing', async () => {
+    mountPlayer();
+    surfaceCheatSheet();
+    await vi.waitFor(() => card());
+    const cardTop = card().style.top;
+    const cardLeft = card().style.left;
+
+    buttonWith('✕').click();
+    const launcher = document.getElementById(LAUNCHER_ID) as HTMLElement;
+    expect(launcher.style.top).toBe(cardTop);
+    expect(launcher.style.left).toBe(cardLeft);
+  });
+
+  it('brings the card back when the launcher is clicked', async () => {
+    mountPlayer();
+    surfaceCheatSheet();
+    await vi.waitFor(() => card());
+    buttonWith('✕').click();
+
+    (document.getElementById(LAUNCHER_ID) as HTMLElement).click();
+    expect(document.getElementById(CARD_ID)).not.toBeNull();
+    expect(document.getElementById(LAUNCHER_ID)).toBeNull();
+    expect(localStorage.getItem(MINIMIZED_KEY)).toBeNull();
+  });
+
+  it('comes back minimised across loads, never as nothing', async () => {
+    mountPlayer();
+    surfaceCheatSheet();
+    await vi.waitFor(() => card());
+    buttonWith('✕').click();
+    document.getElementById(LAUNCHER_ID)?.remove();
 
     surfaceCheatSheet();
-    await new Promise((r) => setTimeout(r, 50));
+    await vi.waitFor(() => document.getElementById(LAUNCHER_ID));
+    expect(document.getElementById(LAUNCHER_ID)).not.toBeNull();
     expect(document.getElementById(CARD_ID)).toBeNull();
   });
 
@@ -161,7 +199,9 @@ describe('surfaceCheatSheet', () => {
       expect(card().textContent).toContain('cheatsheetRateCta');
     });
 
-    it('closing the card also silences the ask for good', async () => {
+    // Closing while it is asking is a "no thanks" and is honoured for good, but
+    // it still only minimises: the card returns from the launcher, teaching.
+    it('closing while it asks silences the ask for good, without losing the card', async () => {
       mountPlayer();
       earnIt();
       surfaceCheatSheet();
@@ -170,10 +210,22 @@ describe('surfaceCheatSheet', () => {
       buttonWith('✕').click();
       expect(localStorage.getItem('moises-kb-review-done')).not.toBeNull();
 
-      localStorage.removeItem('moises-kb-cheatsheet-dismissed');
+      (document.getElementById(LAUNCHER_ID) as HTMLElement).click();
+      expect(card().textContent).not.toContain('cheatsheetRateCta');
+      expect(card().textContent).toContain('cheatsheetTryPrefix');
+    });
+
+    it('closing while it only teaches leaves the ask free to arrive later', async () => {
+      mountPlayer();
       surfaceCheatSheet();
       await vi.waitFor(() => card());
-      expect(card().textContent).not.toContain('cheatsheetRateCta');
+
+      buttonWith('✕').click();
+      expect(localStorage.getItem('moises-kb-review-done')).toBeNull();
+
+      earnIt();
+      (document.getElementById(LAUNCHER_ID) as HTMLElement).click();
+      expect(card().textContent).toContain('cheatsheetRateCta');
     });
   });
 

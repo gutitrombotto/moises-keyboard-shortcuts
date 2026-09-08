@@ -13,7 +13,11 @@ import { isReviewEarned, markReviewHandled } from '@/lib/review';
 import { collectTrackKeys, PLAYER_NATIVE_SHORTCUTS } from '@/lib/shortcuts';
 
 const CARD_ID = 'moises-kb-cheatsheet';
-const DISMISSED_KEY = 'moises-kb-cheatsheet-dismissed';
+// Minimised, never dismissed: closing the card leaves the launcher in its
+// place, so the one surface that now holds the shortcuts, the feedback form and
+// the rating can always be brought back.
+const MINIMIZED_KEY = 'moises-kb-cheatsheet-minimized';
+const LAUNCHER_ID = 'moises-kb-launcher';
 
 // The card teaches the shortcuts to someone who never opens the toolbar popup,
 // so it leads with one key they can try immediately rather than the whole table.
@@ -27,17 +31,21 @@ let refreshLine: (() => void) | null = null;
 
 // localStorage can throw in sandboxed/cross-origin frames; every access fails
 // safe, matching the feedback and review pills.
-function isDismissed(): boolean {
+function isMinimized(): boolean {
   try {
-    return localStorage.getItem(DISMISSED_KEY) != null;
+    return localStorage.getItem(MINIMIZED_KEY) != null;
   } catch {
     return false;
   }
 }
 
-function markDismissed(): void {
+function setMinimized(minimized: boolean): void {
   try {
-    localStorage.setItem(DISMISSED_KEY, '1');
+    if (minimized) {
+      localStorage.setItem(MINIMIZED_KEY, '1');
+    } else {
+      localStorage.removeItem(MINIMIZED_KEY);
+    }
   } catch {
     // Sandboxed frame: the card reappears next load, which is harmless.
   }
@@ -250,23 +258,67 @@ function buildFooter(): HTMLDivElement {
   return footer;
 }
 
-function showCard(): void {
-  if (isDismissed() || document.getElementById(CARD_ID) != null) {
+// The launcher takes the card's own position: shrinking in place is what makes
+// it obvious what the icon is and where to click to get the card back. Parked
+// in a corner it reads as unrelated chrome and goes unnoticed.
+const ANCHOR = {
+  position: 'fixed',
+  top: '96px',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  zIndex: '999998',
+} as const;
+
+function showLauncher(): void {
+  if (document.getElementById(LAUNCHER_ID) != null) {
     return;
   }
+  const button = document.createElement('button');
+  button.id = LAUNCHER_ID;
+  button.type = 'button';
+  button.title = msg('cheatsheetTitle');
+  button.setAttribute('aria-label', msg('cheatsheetReopen'));
+  Object.assign(button.style, {
+    ...ANCHOR,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '4px',
+    borderRadius: '50%',
+    background: 'rgba(22,27,36,0.94)',
+    border: '1px solid rgba(255,255,255,0.12)',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 8px 22px rgba(0,0,0,0.45)',
+    cursor: 'pointer',
+    opacity: '0',
+    transition: 'opacity 0.25s ease',
+  });
+  button.appendChild(iconTile());
+  button.addEventListener('click', () => {
+    setMinimized(false);
+    button.remove();
+    showCard();
+  });
+
+  document.body.appendChild(button);
+  void button.offsetHeight;
+  button.style.opacity = '1';
+}
+
+function showCard(): void {
+  if (document.getElementById(CARD_ID) != null) {
+    return;
+  }
+  document.getElementById(LAUNCHER_ID)?.remove();
 
   const card = document.createElement('div');
   card.id = CARD_ID;
   card.setAttribute('role', 'complementary');
   card.setAttribute('aria-label', msg('cheatsheetTitle'));
   Object.assign(card.style, {
-    position: 'fixed',
     // Below the player's own toolbar, not over it: at the very top the card
     // crowds the transport controls and collides with them on narrow windows.
-    top: '96px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    zIndex: '999998',
+    ...ANCHOR,
     boxSizing: 'border-box',
     maxWidth: 'calc(100vw - 32px)',
     padding: '11px 14px',
@@ -355,12 +407,16 @@ function showCard(): void {
     flexShrink: '0',
   });
   close.addEventListener('click', () => {
-    // Closing the card closes the whole conversation: the rating ask lived here
-    // and must not come back through another door.
-    markDismissed();
-    markReviewHandled();
+    // Closing while it is asking for the rating is a "no thanks", and that is
+    // honoured for good. Closing otherwise only minimises: the card comes back
+    // from the launcher, in teaching mode.
+    if (isReviewEarned()) {
+      markReviewHandled();
+    }
+    setMinimized(true);
     refreshLine = null;
     card.remove();
+    showLauncher();
   });
 
   header.appendChild(iconTile());
@@ -401,9 +457,14 @@ function showCard(): void {
 export function surfaceCheatSheet(): void {
   void retryUntil(() => (hasTrackControls(document) ? true : null), PROBE_ATTEMPTS, PROBE_DELAY_MS).then(
     (found) => {
-      if (found != null) {
-        showCard();
+      if (found == null) {
+        return;
       }
+      if (isMinimized()) {
+        showLauncher();
+        return;
+      }
+      showCard();
     },
   );
 }

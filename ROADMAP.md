@@ -152,6 +152,7 @@ The cheat-sheet only existed in the toolbar popup, which most users never open, 
 - Persists until the ✕. Deliberately **not** retired by usage: the user asked for a permanent surface, not an onboarding hint.
 - Absorbs the feedback and review pills. The extension had grown three floating surfaces; the review one sat on top of the player's Lyrics/Chords/Sections buttons, and its gate — five successful toggles — may simply never open for someone who never learned the keys, which fits the **0 ratings** the measurement found. Both now live in the card: the footer always offers them, and the earned ask takes over the collapsed line instead of spawning a pill.
 - The stars link to the store and never simulate a captured vote; the ✕ silences the ask along with the card, because insisting after a "no" is what gets an extension uninstalled.
+- The ✕ minimises to a launcher instead of dismissing. Consolidating three surfaces into one made closing far more expensive than it looks: a single click used to hide a hint, and would now strand the shortcuts, the feedback form and the rating with no way back short of the devtools console. The launcher keeps the card's position so it is obvious what it is; there is no way to remove it entirely, on purpose.
 - **Done when:** the card renders in the player, expands and collapses, stays dismissed across loads, and nothing of ours overlaps the player's controls. ✅ Verified on the live player 2026-09-07 (screenshots in `docs/pr-media/`).
 
 ## Post-v1.5 (backlog)
