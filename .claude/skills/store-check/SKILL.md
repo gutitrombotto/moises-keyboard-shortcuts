@@ -51,7 +51,8 @@ Fuentes de verdad en el repo (el dashboard debe reflejarlas, nunca al revés):
 2. ZIP: existe `.output/moises-keyboard-shortcuts-<versión>-chrome.zip`? Si no: `pnpm zip`.
 3. Sanity del ZIP (sin browser): descomprimir en el scratchpad y verificar `manifest.json`
    (`version`, `name` = `__MSG_extName__`, los 2 host permissions, `all_frames: true`) y
-   `_locales/{en,es}/messages.json` (extName = "Moises Keyboard Shortcuts").
+   `_locales/{en,es,pt,pt_BR}/messages.json` (`extName`/`extDescription` iguales a "Nombre"/"Short
+   description" de `store-assets/listing/<idioma>.md`; desde la v1.9.0 el nombre está localizado).
 
 ## Fase 1 — Chequeo público (sin login)
 
