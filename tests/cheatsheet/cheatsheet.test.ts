@@ -11,6 +11,7 @@ vi.mock('@/lib/i18n', () => ({ msg: (key: string) => key }));
 const CARD_ID = 'moises-kb-cheatsheet';
 const MINIMIZED_KEY = 'moises-kb-cheatsheet-minimized';
 const LAUNCHER_ID = 'moises-kb-launcher';
+const LAUNCHER_BADGE_ID = 'moises-kb-launcher-badge';
 
 function mountPlayer(): void {
   document.body.innerHTML = `
@@ -237,6 +238,32 @@ describe('surfaceCheatSheet', () => {
       (document.getElementById(LAUNCHER_ID) as HTMLElement).click();
       expect(card().textContent).not.toContain('cheatsheetRateCta');
       expect(card().textContent).toContain('cheatsheetTryPrefix');
+    });
+
+    it('marks the launcher once earned, so a minimised card still asks', async () => {
+      localStorage.setItem(MINIMIZED_KEY, '1');
+      mountPlayer();
+      surfaceCheatSheet();
+      await vi.waitFor(() => document.getElementById(LAUNCHER_ID));
+      expect(document.getElementById(LAUNCHER_BADGE_ID)).toBeNull();
+
+      earnIt();
+      refreshCheatSheet();
+      expect(document.getElementById(LAUNCHER_ID)?.contains(document.getElementById(LAUNCHER_BADGE_ID))).toBe(
+        true,
+      );
+    });
+
+    it('drops the launcher mark once the ask is handled', async () => {
+      localStorage.setItem(MINIMIZED_KEY, '1');
+      mountPlayer();
+      earnIt();
+      surfaceCheatSheet();
+      await vi.waitFor(() => document.getElementById(LAUNCHER_BADGE_ID));
+
+      localStorage.setItem('moises-kb-review-done', '1');
+      refreshCheatSheet();
+      expect(document.getElementById(LAUNCHER_BADGE_ID)).toBeNull();
     });
 
     it('closing while it only teaches leaves the ask free to arrive later', async () => {

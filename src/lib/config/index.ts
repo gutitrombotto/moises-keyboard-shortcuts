@@ -89,4 +89,5 @@ export const REVIEW_URL: string =
 
 // Successful toggles before the one-time review prompt is earned. Low enough to
 // catch the intent window, high enough that the user has felt the value first.
-export const REVIEW_PROMPT_AFTER = 5;
+// Five produced zero ratings over 2.5 months of v1.7.0–v1.8.0.
+export const REVIEW_PROMPT_AFTER = 3;

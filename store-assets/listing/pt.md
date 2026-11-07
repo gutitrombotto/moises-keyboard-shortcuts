@@ -4,15 +4,15 @@ Português do Brasil: é a maior fatia da base de usuários (pt-BR 50% + pt-PT 1
 
 ## Nome
 
-Moises Keyboard Shortcuts
+Atalhos para Moises: Silenciar e Isolar Faixas para Praticar Música
 
-(25 caracteres — precisa coincidir com `extName` em `public/_locales/pt/messages.json`; a marca e o nome da feature ficam em inglês porque é o que se busca na loja)
+(67 caracteres — precisa coincidir com `extName` em `public/_locales/pt/messages.json` e `pt_BR`; leva os termos que se buscam na loja em português, e "para Moises" indica compatibilidade, não afiliação)
 
 ## Short description
 
-Atalhos de teclado para o stem player do Moises.ai — silencie ou isole qualquer faixa com uma só tecla
+Atalhos de teclado para o player do Moises.ai: silencie ou isole voz, bateria, baixo e outros com uma tecla enquanto pratica música.
 
-(101 caracteres — precisa coincidir com `extDescription` em `public/_locales/pt/messages.json`)
+(132 caracteres — precisa coincidir com `extDescription` em `public/_locales/pt/messages.json` e `pt_BR`)
 
 ## Descrição detalhada
 
@@ -28,11 +28,11 @@ ATALHOS
 
 COMO FUNCIONA
 
-Abra qualquer música no player do Moises.ai (studio.moises.ai) e pressione uma tecla. Uma pequena notificação confirma cada ação. É só isso — sem configuração, sem contas, sem setup.
+Abra qualquer música no player do Moises.ai (studio.moises.ai) e pressione uma tecla. Funciona tanto no player clássico quanto no novo player do Moises. Uma pequena notificação confirma cada ação. É só isso — sem configuração, sem contas, sem setup.
 
 FEITA PARA MÚSICOS
 
-Quando você está praticando junto com uma faixa, largar o instrumento para clicar num botãozinho de mute quebra a concentração. Com esta extensão as mãos ficam no instrumento: tire os vocais para cantar, deixe a bateria sozinha para acertar a levada, traga tudo de volta com uma tecla.
+Quando você está praticando música e tocando junto com o playback, largar o instrumento para clicar num botãozinho de mute quebra a concentração. Com esta extensão as mãos ficam no instrumento: tire os vocais para cantar, deixe a bateria sozinha para acertar a levada, traga tudo de volta com uma tecla.
 
 INTELIGENTE E SEGURA
 
@@ -47,6 +47,8 @@ Nenhum dado é coletado, nunca. A extensão não faz nenhuma requisição de red
 REQUISITOS
 
 Google Chrome, desktop. Funciona com a separação padrão de 4 stems (Vocals, Drums, Bass, Other).
+
+Projeto independente, sem afiliação nem endosso do Moises.
 
 (~1.400 caracteres)
 
