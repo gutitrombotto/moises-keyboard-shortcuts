@@ -10,6 +10,7 @@ const CARD_ID = 'moises-kb-cheatsheet';
 // the rating can always be brought back.
 const MINIMIZED_KEY = 'moises-kb-cheatsheet-minimized';
 const LAUNCHER_ID = 'moises-kb-launcher';
+const LAUNCHER_BADGE_ID = 'moises-kb-launcher-badge';
 
 // The card teaches the shortcuts to someone who never opens the toolbar popup,
 // so it leads with one key they can try immediately rather than the whole table.
@@ -283,6 +284,35 @@ const LAUNCHER_ANCHOR = {
   zIndex: '999998',
 } as const;
 
+// A minimised card cannot show the rating ask, and most users minimise it
+// before earning it, so the launcher carries a dot once the ask is waiting.
+function syncLauncherBadge(): void {
+  const launcher = document.getElementById(LAUNCHER_ID);
+  if (launcher == null) {
+    return;
+  }
+  const badge = document.getElementById(LAUNCHER_BADGE_ID);
+  const earned = isReviewEarned();
+  if (earned && badge == null) {
+    const dot = document.createElement('span');
+    dot.id = LAUNCHER_BADGE_ID;
+    dot.setAttribute('aria-hidden', 'true');
+    Object.assign(dot.style, {
+      position: 'absolute',
+      top: '-2px',
+      right: '-2px',
+      width: '9px',
+      height: '9px',
+      borderRadius: '50%',
+      background: '#fbbf24',
+      border: '2px solid rgba(22,27,36,1)',
+    });
+    launcher.appendChild(dot);
+  } else if (!earned && badge != null) {
+    badge.remove();
+  }
+}
+
 function showLauncher(): void {
   if (document.getElementById(LAUNCHER_ID) != null) {
     return;
@@ -315,6 +345,7 @@ function showLauncher(): void {
   });
 
   document.body.appendChild(button);
+  syncLauncherBadge();
   void button.offsetHeight;
   button.style.opacity = '1';
 }
@@ -501,8 +532,9 @@ export function surfaceCheatSheet(): void {
   controlsWatch = setInterval(syncWithControls, CONTROLS_WATCH_MS);
 }
 
-// Called after a successful toggle: re-renders the collapsed line so the rating
-// ask appears the moment it is earned, without waiting for a reload.
+// Called after a successful toggle: re-renders the collapsed line, or the
+// launcher's dot, so the rating ask appears the moment it is earned.
 export function refreshCheatSheet(): void {
   refreshLine?.();
+  syncLauncherBadge();
 }
