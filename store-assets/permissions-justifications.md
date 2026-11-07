@@ -12,13 +12,17 @@ The extension declares **no API permissions** — no `storage`, no `scripting`, 
 
 ### Host permission `https://studio.moises.ai/*`
 
-The Moises stem player is reached at this origin. The content script must run here to add keyboard shortcuts to it. The page at this origin is actually a shell that embeds the real player in an iframe (see below), but navigation, URLs, and part of the keyboard focus live here.
+The Moises stem player is reached at this origin, and the content script must run here to add keyboard shortcuts to it. Moises serves two players: the newer one (`studio.moises.ai/play/...`) renders the track list with the mute/solo buttons directly on this origin; the classic one uses this page as a shell that embeds the player in an iframe (see below).
 
 ### Host permission `https://studio1.moises.ai/*`
 
-The actual stem player — the track list with the mute/solo buttons the extension clicks — is served **inside a cross-origin iframe on this second Moises-owned origin** (`studio1.moises.ai/player2/...`). A content script limited to the first origin never sees the track controls, so the extension needs both. This is the entire reason there are two host permissions; both belong to Moises.ai.
+The classic stem player — the track list with the mute/solo buttons the extension clicks — is served **inside a cross-origin iframe on this second Moises-owned origin** (`studio1.moises.ai/player2/...`). A content script limited to the first origin never sees its track controls, so the extension needs both. This is the entire reason there are two host permissions; both belong to Moises.ai.
 
 The content script listens for keyboard events and clicks mute/solo buttons in the page. It reads nothing beyond the track labels and button classes it needs to find those buttons, and sends nothing anywhere.
+
+### Dashboard field "Justificación de Permiso de host" (combined, as pasted)
+
+The extension needs host access to exactly two Moises-owned origins, because Moises currently serves two stem players. The newer player (studio.moises.ai/play/...) renders the track list with the mute/solo buttons directly on studio.moises.ai. The classic player uses studio.moises.ai only as a shell and serves the track list inside a cross-origin iframe on studio1.moises.ai, so a script limited to the first origin never sees its controls. The content script therefore runs on both origins. It listens for keyboard events and clicks the player's own mute/solo buttons. It reads nothing beyond the track labels it needs to find those buttons, injects only on these two origins, makes zero network requests, and collects no data.
 
 ## Privacy practices — draft answers
 
