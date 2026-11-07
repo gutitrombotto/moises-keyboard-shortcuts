@@ -1,10 +1,10 @@
 {
   "extName": {
-    "message": "Moises Keyboard Shortcuts",
-    "description": "Extension name shown in Chrome and as the Web Store listing title. The brand stays untranslated: users search for 'Moises'."
+    "message": "Stem Player Shortcuts for Moises – Mute Vocals, Drums & Bass",
+    "description": "Extension name shown in Chrome and as the Web Store listing title. Leads with the searched terms (stem player, mute vocals); \"for Moises\" states compatibility, since the extension is not affiliated with Moises."
   },
   "extDescription": {
-    "message": "Keyboard shortcuts for Moises.ai stem player — mute/solo any track with a single keypress",
+    "message": "Practice along without the mouse: hotkeys to mute or solo vocals, drums, bass and other stems in the Moises.ai player. Free.",
     "description": "Manifest description. Doubles as the Web Store listing summary; max 132 characters."
   },
   "popupStatusActive": {

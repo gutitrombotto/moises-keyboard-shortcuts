@@ -2,19 +2,19 @@
 
 ## Name
 
-Moises Keyboard Shortcuts
+Stem Player Shortcuts for Moises – Mute Vocals, Drums & Bass
 
-(25 characters — must match `extName` in `public/_locales/en/messages.json`)
+(60 characters — must match `extName` in `public/_locales/en/messages.json`. Leads with the searched terms; "for Moises" states compatibility, not affiliation.)
 
 ## Short description
 
-Keyboard shortcuts for Moises.ai stem player — mute/solo any track with a single keypress
+Practice along without the mouse: hotkeys to mute or solo vocals, drums, bass and other stems in the Moises.ai player. Free.
 
-(89 characters — must match `extDescription` in `public/_locales/en/messages.json`)
+(124 characters — must match `extDescription` in `public/_locales/en/messages.json`)
 
 ## Detailed description
 
-Practice music without breaking your flow. This extension adds keyboard shortcuts to Moises.ai's stem player so you can mute and solo tracks instantly — no mouse needed.
+Practice music without breaking your flow. This extension adds keyboard shortcuts (hotkeys) to the Moises.ai stem player so you can mute vocals, solo the drums or drop any stem instantly — no mouse needed.
 
 SHORTCUTS
 
@@ -26,11 +26,11 @@ SHORTCUTS
 
 HOW IT WORKS
 
-Open any song in the Moises.ai player (studio.moises.ai) and press a key. A small notification confirms every action. That's it — no setup, no configuration, no accounts.
+Open any song in the Moises.ai player (studio.moises.ai) and press a key. Works with both the classic player and the new Moises player. A small notification confirms every action. That's it — no setup, no configuration, no accounts.
 
 DESIGNED FOR MUSICIANS
 
-When you're practicing along with a track, reaching for the mouse to click a tiny mute button breaks your concentration. With this extension you keep your hands on your instrument: drop the vocals to sing, solo the drums to lock in the groove, bring everything back with one key.
+When you're practicing along with a backing track, reaching for the mouse to click a tiny mute button breaks your concentration. With this extension you keep your hands on your instrument — guitar, bass, drums or voice: mute the vocals to sing them yourself, solo the drums to lock in the groove, bring everything back with one key.
 
 SMART AND SAFE
 
@@ -45,6 +45,8 @@ No data collected, ever. The extension makes zero network requests — it runs e
 REQUIREMENTS
 
 Google Chrome, desktop. Works with the standard 4-stem separation (Vocals, Drums, Bass, Other).
+
+Independent project, not affiliated with or endorsed by Moises.
 
 (~1,300 characters)
 
