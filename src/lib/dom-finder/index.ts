@@ -10,10 +10,22 @@ import {
 // "container" (e.g. the whole track list), so the climb is bounded.
 const CONTAINER_SEARCH_DEPTH = 15;
 
-// Distinguishes the player frame from the studio.moises.ai shell frame (which
-// also runs this script under all_frames but has no track controls).
+function classSelector(patterns: readonly string[]): string {
+  return patterns.map((pattern) => `[class*="${pattern}"]`).join(', ');
+}
+
+function hasAnyClass(el: Element, patterns: readonly string[]): boolean {
+  return patterns.some((pattern) => el.className.includes(pattern));
+}
+
+export function isActionButton(el: Element, action: TrackAction): boolean {
+  return hasAnyClass(el, ACTION_CLASS_PATTERNS[action]);
+}
+
+// Distinguishes a document that holds the player controls from one that does
+// not: the shell around the iframe player, the library, any other page.
 export function hasTrackControls(root: Document): boolean {
-  return root.querySelector(`[class*="${ACTION_CLASS_PATTERNS.mute}"]`) != null;
+  return root.querySelector(classSelector(ACTION_CLASS_PATTERNS.mute)) != null;
 }
 
 // Every label a stem can render as, lowercased for a case-insensitive match.
@@ -42,6 +54,13 @@ export function findTrackTextNode(root: Document, trackName: string): Text | nul
   return walker.nextNode() as Text | null;
 }
 
+function pairsMuteWithSolo(el: HTMLElement): boolean {
+  const buttons = Array.from(el.querySelectorAll('button'));
+  return (
+    buttons.some((btn) => isActionButton(btn, 'mute')) && buttons.some((btn) => isActionButton(btn, 'solo'))
+  );
+}
+
 // Climbs from the track label to the nearest ancestor holding BOTH a mute and
 // a solo button — that pairing is what identifies a track row (the Smart
 // Metronome row shares the control classes but has its own label, so anchoring
@@ -49,18 +68,7 @@ export function findTrackTextNode(root: Document, trackName: string): Text | nul
 export function findTrackContainer(textNode: Text): HTMLElement | null {
   let el = textNode.parentElement;
   for (let i = 0; i < CONTAINER_SEARCH_DEPTH && el != null; i++) {
-    const buttons = el.querySelectorAll('button');
-    let hasMute = false;
-    let hasSolo = false;
-    for (const btn of buttons) {
-      if (btn.className.includes(ACTION_CLASS_PATTERNS.mute)) {
-        hasMute = true;
-      }
-      if (btn.className.includes(ACTION_CLASS_PATTERNS.solo)) {
-        hasSolo = true;
-      }
-    }
-    if (hasMute && hasSolo) {
+    if (pairsMuteWithSolo(el)) {
       return el;
     }
     el = el.parentElement;
@@ -73,8 +81,9 @@ export function findTrackContainer(textNode: Text): HTMLElement | null {
 const NON_RENDERED_TAGS = new Set(['SCRIPT', 'NOSCRIPT', 'STYLE', 'TEMPLATE', 'TITLE']);
 
 function holdsControls(el: HTMLElement): boolean {
-  const selector = `[class*="${ACTION_CLASS_PATTERNS.mute}"], [class*="${ACTION_CLASS_PATTERNS.solo}"]`;
-  return el.querySelector(selector) != null;
+  return (
+    el.querySelector(classSelector([...ACTION_CLASS_PATTERNS.mute, ...ACTION_CLASS_PATTERNS.solo])) != null
+  );
 }
 
 // A row's label is its text that sits outside the controls subtree — which is
@@ -102,17 +111,7 @@ function isRowLabel(node: Text, row: HTMLElement): boolean {
 function findRowLabel(button: HTMLElement): { row: HTMLElement; label: string } | null {
   let el = button.parentElement;
   for (let i = 0; i < CONTAINER_SEARCH_DEPTH && el != null; i++) {
-    let hasMute = false;
-    let hasSolo = false;
-    for (const btn of el.querySelectorAll('button')) {
-      if (btn.className.includes(ACTION_CLASS_PATTERNS.mute)) {
-        hasMute = true;
-      }
-      if (btn.className.includes(ACTION_CLASS_PATTERNS.solo)) {
-        hasSolo = true;
-      }
-    }
-    if (hasMute && hasSolo) {
+    if (pairsMuteWithSolo(el)) {
       const row = el;
       const walker = row.ownerDocument.createTreeWalker(row, NodeFilter.SHOW_TEXT, {
         acceptNode: (node: Node): number =>
@@ -143,7 +142,7 @@ function findRowLabel(button: HTMLElement): { row: HTMLElement; label: string } 
 export function listDetectedTrackLabels(root: Document): string[] {
   const seen = new Set<HTMLElement>();
   const labels: string[] = [];
-  for (const button of root.querySelectorAll<HTMLElement>(`[class*="${ACTION_CLASS_PATTERNS.mute}"]`)) {
+  for (const button of root.querySelectorAll<HTMLElement>(classSelector(ACTION_CLASS_PATTERNS.mute))) {
     const hit = findRowLabel(button);
     if (hit != null && !seen.has(hit.row)) {
       seen.add(hit.row);
@@ -153,10 +152,10 @@ export function listDetectedTrackLabels(root: Document): string[] {
   return labels;
 }
 
-export function findActionButton(container: HTMLElement, classPattern: string): HTMLButtonElement | null {
+export function findActionButton(container: HTMLElement, action: TrackAction): HTMLButtonElement | null {
   const buttons = container.querySelectorAll('button');
   for (const btn of buttons) {
-    if (btn.className.includes(classPattern)) {
+    if (isActionButton(btn, action)) {
       return btn;
     }
   }
@@ -166,10 +165,8 @@ export function findActionButton(container: HTMLElement, classPattern: string): 
 // Read BEFORE clicking: the click flips the marker, and reading afterwards would
 // race the player's re-render. The result is the state the click will produce.
 //
-// The engaged marker is a class, not aria-pressed — the live frame carries no
-// aria-pressed at all, so keying on it alone made every toggle 'unknown' and
-// every toast read as neither muted nor unmuted. aria-pressed is still honored
-// first in case Moises ever adds it, since it would be the better signal.
+// aria-pressed is the better signal and the /play/ player sets it; the iframe
+// player carries none, so there the engaged marker class is the only state.
 export function nextToggleState(button: HTMLButtonElement, action: TrackAction): ToggleState {
   const pressed = button.getAttribute('aria-pressed');
   if (pressed === 'true') {
@@ -178,5 +175,5 @@ export function nextToggleState(button: HTMLButtonElement, action: TrackAction):
   if (pressed === 'false') {
     return 'on';
   }
-  return button.className.includes(ACTION_ACTIVE_CLASS_PATTERNS[action]) ? 'off' : 'on';
+  return hasAnyClass(button, ACTION_ACTIVE_CLASS_PATTERNS[action]) ? 'off' : 'on';
 }

@@ -60,7 +60,7 @@ moises-keyboard-shortcuts/
 ├── store-assets/                    # CWS listing sources of truth
 └── tests/
     ├── dom/
-    │   └── fixtures/                # player.html (studio1 frame) + shell.html replicas
+    │   └── fixtures/                # player.html (studio1 frame), player-play.html (/play/ player), shell.html replicas
     ├── keyboard/
     ├── toast/
     ├── urls/
@@ -83,9 +83,11 @@ moises-keyboard-shortcuts/
 
 The page at `studio.moises.ai/player2/<id>` is only a **shell**: the actual stem player is served inside a **cross-origin iframe on `studio1.moises.ai`** (`/player2/<id>/?shellDisabled=true`). The track controls and the keyboard focus live inside that iframe, so a top-frame-only injection sees nothing. This is why the manifest matches both origins and sets `all_frames: true` — the script must run _inside_ the player frame. The shell page also embeds unrelated `bling-bling.moises.ai` ad/paywall iframes, which match no pattern and are never injected.
 
+Since late 2026 Moises also serves a **second player at `studio.moises.ai/play/<id>`** (opt-in "Try the New Player", behind PostHog flags). It renders the mixer **in the shell document itself**, with no `studio1` iframe, CSS-module classes of the form `_mute_e3u0i_65` / `_solo_…` / `_active_…`, and `aria-pressed` on the toggles (verified live 2026-11-06). Both players are live at once, so detection accepts both class schemes (§4). The bare `/play` path is the library and holds no controls. The cheat-sheet card follows the controls with a 1 s watch rather than a one-shot probe, so it appears and leaves as the document gains or loses them.
+
 ### 3.3 Frame-inert guard
 
-With `all_frames`, the script also loads in the shell frame. Before acting on any shortcut, the handler checks `hasTrackControls()` (a `[class*="buttonMute"]` probe) and stays inert in frames without track controls — otherwise every keypress on the shell would emit a false "track not found" toast (§9). The absence of controls means two different things depending on the frame, so the handler tells them apart by hostname (`isPlayerFrame`): in the **shell** (`studio.moises.ai`) it is expected and stays silent; in the **player** (`studio1.moises.ai`) it means the player is no longer recognized, and that is reported once per page load — but only after a probe long enough to outlive the player's mount, so a keypress in the first seconds never cries broken. Verified live on the 2026 player: the two hosts are same-site, so the iframe shares the shell's process and the hostname is the only available discriminator.
+With `all_frames`, the script also loads in the shell frame. Before acting on any shortcut, the handler checks `hasTrackControls()` (a probe for any mute class in `ACTION_CLASS_PATTERNS`) and stays inert in frames without track controls — otherwise every keypress on the shell would emit a false "track not found" toast (§9). The absence of controls means two different things depending on the frame, so the handler tells them apart by URL (`isPlayerSurface`): in the **shell** (`studio.moises.ai`, except `/play/<id>`) it is expected and stays silent; on a **player** (`studio1.moises.ai`, or the shell at `/play/<id>`) it means the player is no longer recognized, and that is reported once per page load — but only after a probe long enough to outlive the player's mount, so a keypress in the first seconds never cries broken. Verified live on the 2026 player: the two hosts are same-site, so the iframe shares the shell's process and the hostname is the only available discriminator.
 
 ## 4. DOM Detection Engine
 
@@ -99,7 +101,7 @@ The **Smart Metronome** row shares the control button classes but has its own la
 
 ### 4.2 Button matching
 
-Within the track container, buttons are matched by `className.includes(pattern)` with the stable prefixes from `ACTION_CLASS_PATTERNS`: `buttonMute` for mute, `buttonSolo` for solo. The match is a substring on purpose — the hashed suffix changes with Moises deploys, the prefix has not.
+Within the track container, buttons are matched by `className.includes(pattern)` with the stable prefixes from `ACTION_CLASS_PATTERNS`: `buttonMute` / `_mute_` for mute, `buttonSolo` / `_solo_` for solo (iframe player / `/play/` player). The match is a substring on purpose — the hashed suffix changes with Moises deploys, the prefix has not.
 
 ### 4.3 Retry
 
@@ -162,12 +164,12 @@ Manifest name/description, popup strings and in-page strings (toasts, feedback a
 
 Every failure path is a logged error plus a diagnostic toast; there are no typed exceptions because no failure crosses a module boundary — each miss resolves `null` and is surfaced at the orchestration layer (`content.ts`), which adds the same diagnostic payload to all three: the labels the player is really rendering, plus the report link.
 
-| Failure                              | Detected by                                                              | Console (`[Moises Keyboard]`)                         | Error toast (✕, red)                                        |
-| ------------------------------------ | ------------------------------------------------------------------------ | ----------------------------------------------------- | ----------------------------------------------------------- |
-| Track label absent after retries     | `findTrackTextNode` → null                                               | `Track "<track>" not found after retries`             | `<track> track not found`                                   |
-| No ancestor with mute+solo buttons   | `findTrackContainer` → null                                              | `Could not find track container for "<track>"`        | `<track> container not found`                               |
-| Button class pattern matches nothing | `findActionButton` → null                                                | `<action> button not found in "<track>" container`    | `<track> <action> button not found`                         |
-| Player frame exposes no controls     | `hasTrackControls` → false after the mount probe, in `studio1.moises.ai` | `Player frame exposes no recognizable track controls` | `shortcuts unavailable on this player` (once per page load) |
+| Failure                              | Detected by                                                                                           | Console (`[Moises Keyboard]`)                         | Error toast (✕, red)                                        |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------- |
+| Track label absent after retries     | `findTrackTextNode` → null                                                                            | `Track "<track>" not found after retries`             | `<track> track not found`                                   |
+| No ancestor with mute+solo buttons   | `findTrackContainer` → null                                                                           | `Could not find track container for "<track>"`        | `<track> container not found`                               |
+| Button class pattern matches nothing | `findActionButton` → null                                                                             | `<action> button not found in "<track>" container`    | `<track> <action> button not found`                         |
+| Player frame exposes no controls     | `hasTrackControls` → false after the mount probe, in `studio1.moises.ai` or the shell at `/play/<id>` | `Player frame exposes no recognizable track controls` | `shortcuts unavailable on this player` (once per page load) |
 
 Success path: console `<track> <action> toggled` + action toast per §7.2 (track name + state chip).
 

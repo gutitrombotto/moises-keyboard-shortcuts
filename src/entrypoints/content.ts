@@ -1,5 +1,4 @@
 import {
-  ACTION_CLASS_PATTERNS,
   DEBOUNCE_MS,
   FEEDBACK_URL,
   PROBE_ATTEMPTS,
@@ -22,7 +21,7 @@ import { msg } from '@/lib/i18n';
 import { resolveShortcut, shouldIgnoreKeypress } from '@/lib/keyboard';
 import { log, logError } from '@/lib/logger';
 import { retryUntil } from '@/lib/retry';
-import { isPlayerFrame } from '@/lib/urls';
+import { isPlayerSurface } from '@/lib/urls';
 import { recordUse } from '@/lib/review';
 import { showActionToast, showDiagnosticToast } from '@/lib/toast';
 
@@ -60,8 +59,6 @@ async function reportControlsUnavailable(): Promise<void> {
 }
 
 async function toggleTrackAction(trackName: string, action: TrackAction): Promise<void> {
-  const classPattern = ACTION_CLASS_PATTERNS[action];
-
   const textNode = await retryUntil(
     () => findTrackTextNode(document, trackName),
     RETRY_ATTEMPTS,
@@ -80,11 +77,7 @@ async function toggleTrackAction(trackName: string, action: TrackAction): Promis
     return;
   }
 
-  const button = await retryUntil(
-    () => findActionButton(container, classPattern),
-    RETRY_ATTEMPTS,
-    RETRY_DELAY_MS,
-  );
+  const button = await retryUntil(() => findActionButton(container, action), RETRY_ATTEMPTS, RETRY_DELAY_MS);
   if (button == null) {
     logError(`${action} button not found in "${trackName}" container`);
     reportFailure(`${trackName} ${action}: ${msg('errButtonNotFound')}`);
@@ -119,12 +112,12 @@ export default defineContentScript({
         return;
       }
 
-      // With all_frames the script also loads in the shell frame, which has no
-      // track controls and must stay inert. In the player frame the same
-      // absence is a breakage, and staying quiet there is what made a broken
-      // build indistinguishable from an uninstalled one.
+      // With all_frames the script also loads in frames and pages with no
+      // track controls, which must stay inert. Where a player is expected the
+      // same absence is a breakage, and staying quiet there is what made a
+      // broken build indistinguishable from an uninstalled one.
       if (!hasTrackControls(document)) {
-        if (isPlayerFrame(location.hostname)) {
+        if (isPlayerSurface(location.hostname, location.pathname)) {
           void reportControlsUnavailable();
         }
         return;
