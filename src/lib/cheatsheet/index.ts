@@ -1,14 +1,6 @@
-import {
-  DEFAULT_TRACK_COLOR,
-  FEEDBACK_URL,
-  PROBE_ATTEMPTS,
-  PROBE_DELAY_MS,
-  REVIEW_URL,
-  TRACK_COLORS,
-} from '@/lib/config';
+import { DEFAULT_TRACK_COLOR, FEEDBACK_URL, REVIEW_URL, TRACK_COLORS } from '@/lib/config';
 import { hasTrackControls } from '@/lib/dom-finder';
 import { msg } from '@/lib/i18n';
-import { retryUntil } from '@/lib/retry';
 import { isReviewEarned, markReviewHandled } from '@/lib/review';
 import { collectTrackKeys, PLAYER_NATIVE_SHORTCUTS } from '@/lib/shortcuts';
 
@@ -25,9 +17,13 @@ const TEASER_TRACK_INDEX = 0;
 
 const STAR_COUNT = 5;
 
+const CONTROLS_WATCH_MS = 1000;
+
 // Set while a collapsed card is on screen, so a toggle that earns the rating
 // can flip the line without rebuilding the card.
 let refreshLine: (() => void) | null = null;
+
+let controlsWatch: ReturnType<typeof setInterval> | null = null;
 
 // localStorage can throw in sandboxed/cross-origin frames; every access fails
 // safe, matching the feedback and review pills.
@@ -470,21 +466,39 @@ function showCard(): void {
   card.style.opacity = '1';
 }
 
-// Only surfaces in the frame that actually holds the player controls, once the
-// player has mounted — same probe as the feedback pill.
-export function surfaceCheatSheet(): void {
-  void retryUntil(() => (hasTrackControls(document) ? true : null), PROBE_ATTEMPTS, PROBE_DELAY_MS).then(
-    (found) => {
-      if (found == null) {
-        return;
-      }
-      if (isMinimized()) {
-        showLauncher();
-        return;
-      }
+function isSurfaced(): boolean {
+  return document.getElementById(CARD_ID) != null || document.getElementById(LAUNCHER_ID) != null;
+}
+
+function unsurface(): void {
+  refreshLine = null;
+  document.getElementById(CARD_ID)?.remove();
+  document.getElementById(LAUNCHER_ID)?.remove();
+}
+
+function syncWithControls(): void {
+  const present = hasTrackControls(document);
+  if (present && !isSurfaced()) {
+    if (isMinimized()) {
+      showLauncher();
+    } else {
       showCard();
-    },
-  );
+    }
+  } else if (!present && isSurfaced()) {
+    unsurface();
+  }
+}
+
+// Shows the card only while the document holds player controls. A one-shot
+// probe at load is not enough: the /play/ player is reached by in-app
+// navigation from the library, so the shell document that loaded the script
+// gains (and loses) the controls long after document_idle.
+export function surfaceCheatSheet(): void {
+  if (controlsWatch != null) {
+    clearInterval(controlsWatch);
+  }
+  syncWithControls();
+  controlsWatch = setInterval(syncWithControls, CONTROLS_WATCH_MS);
 }
 
 // Called after a successful toggle: re-renders the collapsed line so the rating

@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 
-import { ACTION_CLASS_PATTERNS } from '@/lib/config';
 import {
   findActionButton,
   findTrackContainer,
@@ -72,8 +71,8 @@ describe('findTrackTextNode across locales (real 2026 player DOM)', () => {
     const doc = loadFixture('player-pt');
     const container = containerFor(doc, 'Drums'); // "Bateria" in the fixture
     expect(container.className).toContain('channel_line__');
-    expect(findActionButton(container, ACTION_CLASS_PATTERNS.mute)).not.toBeNull();
-    expect(findActionButton(container, ACTION_CLASS_PATTERNS.solo)).not.toBeNull();
+    expect(findActionButton(container, 'mute')).not.toBeNull();
+    expect(findActionButton(container, 'solo')).not.toBeNull();
   });
 
   it('keeps the localized Smart Metronome row out of track lookups', () => {
@@ -108,19 +107,20 @@ describe('findTrackContainer', () => {
 describe('findActionButton', () => {
   it('finds the mute button by class substring despite the hashed suffix', () => {
     const container = containerFor(loadFixture('player'), 'Drums');
-    const button = findActionButton(container, ACTION_CLASS_PATTERNS.mute);
+    const button = findActionButton(container, 'mute');
     expect(button?.getAttribute('aria-label')).toBe('Mute Drums');
   });
 
   it('finds the solo button, not the mute one, when asked for solo', () => {
     const container = containerFor(loadFixture('player'), 'Bass');
-    const button = findActionButton(container, ACTION_CLASS_PATTERNS.solo);
+    const button = findActionButton(container, 'solo');
     expect(button?.getAttribute('aria-label')).toBe('Solo Bass');
   });
 
-  it('returns null when the pattern matches no button in the container', () => {
-    const container = containerFor(loadFixture('player'), 'Bass');
-    expect(findActionButton(container, 'buttonRecord')).toBeNull();
+  it('returns null when the container holds no button for that action', () => {
+    const container = document.createElement('div');
+    container.innerHTML = '<button class="controls_buttonMute__HNRvx"></button>';
+    expect(findActionButton(container, 'solo')).toBeNull();
   });
 
   // The live 2026 frame carries no aria-pressed on any button (verified
@@ -153,22 +153,16 @@ describe('findActionButton', () => {
 
   it('reads the real fixture rows the way the live player marks them', () => {
     const doc = loadFixture('player');
-    const muted = findActionButton(
-      containerFor(doc, 'Smart Metronome'),
-      ACTION_CLASS_PATTERNS.mute,
-    ) as HTMLButtonElement;
+    const muted = findActionButton(containerFor(doc, 'Smart Metronome'), 'mute') as HTMLButtonElement;
     expect(nextToggleState(muted, 'mute')).toBe('off');
 
-    const idle = findActionButton(
-      containerFor(doc, 'Vocals'),
-      ACTION_CLASS_PATTERNS.mute,
-    ) as HTMLButtonElement;
+    const idle = findActionButton(containerFor(doc, 'Vocals'), 'mute') as HTMLButtonElement;
     expect(nextToggleState(idle, 'mute')).toBe('on');
   });
 
   it('yields a clickable button', () => {
     const container = containerFor(loadFixture('player'), 'Vocals');
-    const button = findActionButton(container, ACTION_CLASS_PATTERNS.mute) as HTMLButtonElement;
+    const button = findActionButton(container, 'mute') as HTMLButtonElement;
     let clicked = false;
     button.addEventListener('click', () => {
       clicked = true;
@@ -230,5 +224,41 @@ describe('listDetectedTrackLabels', () => {
 
   it('finds nothing on the shell frame', () => {
     expect(listDetectedTrackLabels(loadFixture('shell'))).toEqual([]);
+  });
+});
+
+// The /play/:trackId player renders the mixer in the shell document itself,
+// with CSS-module classes (_mute_e3u0i_65) and aria-pressed (live, 2026-11-06).
+describe('the /play/ player rendered in the shell', () => {
+  it('holds track controls, so the shell is no longer inert there', () => {
+    expect(hasTrackControls(loadFixture('player-play'))).toBe(true);
+  });
+
+  it.each(['Vocals', 'Drums', 'Bass', 'Other'])(
+    'resolves the %s row to its own mute and solo',
+    (trackName) => {
+      const container = containerFor(loadFixture('player-play'), trackName);
+      expect(container.closest('[role="group"]')?.getAttribute('aria-label')).toBe(trackName);
+      expect(findActionButton(container, 'mute')?.textContent).toBe('M');
+      expect(findActionButton(container, 'solo')?.textContent).toBe('S');
+    },
+  );
+
+  it('reads the state from aria-pressed, as the live player marks it', () => {
+    const doc = loadFixture('player-play');
+    const muted = findActionButton(containerFor(doc, 'Metronome'), 'mute') as HTMLButtonElement;
+    expect(nextToggleState(muted, 'mute')).toBe('off');
+    const idle = findActionButton(containerFor(doc, 'Vocals'), 'mute') as HTMLButtonElement;
+    expect(nextToggleState(idle, 'mute')).toBe('on');
+  });
+
+  it('lists the rendered row labels for the diagnostic', () => {
+    expect(listDetectedTrackLabels(loadFixture('player-play'))).toEqual([
+      'Vocals',
+      'Drums',
+      'Bass',
+      'Other',
+      'Metronome',
+    ]);
   });
 });

@@ -46,6 +46,22 @@ afterEach(() => {
 });
 
 describe('surfaceCheatSheet', () => {
+  // The /play/ player is reached by in-app navigation, so the document that
+  // loaded the script gains and loses the controls without reloading.
+  it('appears when the controls mount later and leaves when they unmount', async () => {
+    surfaceCheatSheet();
+    expect(document.getElementById(CARD_ID)).toBeNull();
+    mountPlayer();
+    await vi.waitFor(() => card(), { timeout: 3000 });
+    document.body.innerHTML = '';
+    await vi.waitFor(
+      () => {
+        expect(document.getElementById(CARD_ID)).toBeNull();
+      },
+      { timeout: 3000 },
+    );
+  });
+
   it('shows the card once the player controls are present', async () => {
     mountPlayer();
     surfaceCheatSheet();

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isPlayerFrame, isPlayerUrl } from '@/lib/urls';
+import { isPlayerSurface, isPlayerUrl } from '@/lib/urls';
 
 describe('isPlayerUrl', () => {
   it.each([
@@ -26,25 +26,32 @@ describe('isPlayerUrl', () => {
   });
 });
 
-// Only the player frame is expected to hold track controls, so only there does
-// their absence mean the extension is broken (SPECS §9). Verified live on the
-// 2026 player: shell = studio.moises.ai, player = studio1.moises.ai.
-describe('isPlayerFrame', () => {
-  it('recognizes the player iframe host', () => {
-    expect(isPlayerFrame('studio1.moises.ai')).toBe(true);
+// Only where a player is expected does a missing control mean the extension
+// is broken (SPECS §9): the studio1 iframe, or the shell on /play/:trackId.
+describe('isPlayerSurface', () => {
+  it('recognizes the iframe player host on any path', () => {
+    expect(isPlayerSurface('studio1.moises.ai', '/player2/abc123/')).toBe(true);
   });
 
-  it('does not treat the shell host as the player frame', () => {
-    expect(isPlayerFrame('studio.moises.ai')).toBe(false);
+  it('recognizes the shell when it renders the /play/ player', () => {
+    expect(isPlayerSurface('studio.moises.ai', '/play/011af0b7-e934-42d8-9842-cbd3b60dd7a7')).toBe(true);
   });
+
+  it.each(['/play', '/play/', '/player2/abc123', '/', '/library'])(
+    'does not expect controls on the shell at %s',
+    (pathname) => {
+      expect(isPlayerSurface('studio.moises.ai', pathname)).toBe(false);
+    },
+  );
 
   it('rejects the ad frames that share the moises.ai site', () => {
-    expect(isPlayerFrame('bling-bling.moises.ai')).toBe(false);
+    expect(isPlayerSurface('bling-bling.moises.ai', '/play/abc')).toBe(false);
   });
 
   it('rejects look-alike hosts', () => {
-    expect(isPlayerFrame('studio11.moises.ai')).toBe(false);
-    expect(isPlayerFrame('studio1.moises.ai.evil.com')).toBe(false);
-    expect(isPlayerFrame('')).toBe(false);
+    expect(isPlayerSurface('studio11.moises.ai', '/')).toBe(false);
+    expect(isPlayerSurface('studio1.moises.ai.evil.com', '/')).toBe(false);
+    expect(isPlayerSurface('studio.moises.ai.evil.com', '/play/abc')).toBe(false);
+    expect(isPlayerSurface('', '')).toBe(false);
   });
 });

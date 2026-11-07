@@ -9,17 +9,25 @@ export function isPlayerUrl(url: string | undefined): boolean {
   return /^https:\/\/studio1?\.moises\.ai\//.test(url);
 }
 
-// The player renders in a studio1.moises.ai iframe nested in the
-// studio.moises.ai shell; the content script runs in both under all_frames.
-// Only the player frame is expected to hold track controls, so only there does
-// their absence mean the extension is broken rather than simply out of place.
+// Two players are live at once. The iframe player renders in a
+// studio1.moises.ai frame nested in the studio.moises.ai shell; the content
+// script runs in both under all_frames, and only the iframe holds controls.
+// The /play/:trackId player renders in the shell document itself, while the
+// bare /play path is the library, which never holds controls.
 //
-// Verified live on the 2026 player (2026-09-07): shell = studio.moises.ai
-// (top frame, zero mute/solo buttons), player = studio1.moises.ai (5 mute + 5
-// solo). The two are same-site, so the iframe shares the shell's process and
-// is not a separate debug target — the check has to be the hostname.
-export const PLAYER_FRAME_HOST = 'studio1.moises.ai';
+// Verified live: iframe player on 2026-09-07 (shell zero buttons, studio1 5
+// mute + 5 solo); /play/ player on 2026-11-06 (shell 5 mute + 5 solo, no
+// player iframe). The shell and studio1 are same-site, so the iframe is not a
+// separate debug target and the check has to be the URL.
+const PLAYER_FRAME_HOST = 'studio1.moises.ai';
+const SHELL_HOST = 'studio.moises.ai';
+const SHELL_PLAYER_PATH = /^\/play\/[^/]+/;
 
-export function isPlayerFrame(hostname: string): boolean {
-  return hostname === PLAYER_FRAME_HOST;
+// Where track controls are expected, so that their absence means the extension
+// is broken rather than simply out of place.
+export function isPlayerSurface(hostname: string, pathname: string): boolean {
+  if (hostname === PLAYER_FRAME_HOST) {
+    return true;
+  }
+  return hostname === SHELL_HOST && SHELL_PLAYER_PATH.test(pathname);
 }

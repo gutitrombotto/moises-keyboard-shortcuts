@@ -22,22 +22,25 @@ export const SHORTCUTS: Readonly<Record<string, Shortcut>> = {
   O: { track: 'Other', action: 'solo' },
 };
 
-// Moises buttons carry hashed class suffixes (controls_buttonMute__HNRvx), so
-// matching is by stable substring, never by full class name.
-export const ACTION_CLASS_PATTERNS: Readonly<Record<TrackAction, string>> = {
-  mute: 'buttonMute',
-  solo: 'buttonSolo',
+// Moises buttons carry hashed class suffixes, so matching is by stable
+// substring, never by full class name. Two players are live at once: the
+// studio1 iframe player (controls_buttonMute__HNRvx) and the /play/:trackId
+// player rendered in the shell itself, whose CSS modules emit
+// _mute_e3u0i_65. The underscores delimit the CSS-module local name, so
+// '_mute_' cannot match a longer name such as '_muted_'.
+export const ACTION_CLASS_PATTERNS: Readonly<Record<TrackAction, readonly string[]>> = {
+  mute: ['buttonMute', '_mute_'],
+  solo: ['buttonSolo', '_solo_'],
 };
 
-// How the player marks a control as currently engaged. Captured live from the
-// 2026 player (2026-09-07): muting adds controls_isMuted__* (alongside
-// controls_isSilentMuted__*), soloing adds controls_active__*. This is the only
-// readable state — the frame carries **no** aria-pressed on any button — so
-// without these the toast can never say whether a click muted or unmuted.
+// How the player marks a control as currently engaged, read only when the
+// button has no aria-pressed. The iframe player carries no aria-pressed at all
+// (2026-09-07): muting adds controls_isMuted__*, soloing controls_active__*.
+// The /play/ player sets aria-pressed (2026-11-06) and also adds _active_*.
 // Same class-prefix contract as ACTION_CLASS_PATTERNS: a rehash breaks both.
-export const ACTION_ACTIVE_CLASS_PATTERNS: Readonly<Record<TrackAction, string>> = {
-  mute: 'isMuted',
-  solo: 'controls_active',
+export const ACTION_ACTIVE_CLASS_PATTERNS: Readonly<Record<TrackAction, readonly string[]>> = {
+  mute: ['isMuted', '_active_'],
+  solo: ['controls_active', '_active_'],
 };
 
 // The player localizes the visible track label to the user's Moises UI language,
